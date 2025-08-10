@@ -95,7 +95,11 @@ export const PlayerTableSection = ({ players }: PlayerTableSectionProps): JSX.El
                 <TableCell className="w-[120px] sm:w-[168px] px-2 sm:px-4 py-2">
                   <Badge
                     variant="secondary"
-                    className="bg-[#eff2f4] text-[#111416] [font-family:'Manrope',Helvetica] font-medium text-xs sm:text-sm hover:bg-[#eff2f4] px-2 sm:px-4 py-1 h-6 sm:h-8 rounded-lg"
+                    className={`[font-family:'Manrope',Helvetica] font-medium text-xs sm:text-sm px-2 sm:px-4 py-1 h-6 sm:h-8 rounded-lg ${
+                      player.status === 'Completed' 
+                        ? 'bg-green-100 text-green-800 hover:bg-green-100' 
+                        : 'bg-orange-100 text-orange-800 hover:bg-orange-100'
+                    }`}
                   >
                     {player.status}
                   </Badge>
