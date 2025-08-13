@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
 	Avatar,
@@ -34,12 +34,47 @@ export const PlayerTableSection = ({
 }: PlayerTableSectionProps): JSX.Element => {
 	const navigate = useNavigate();
 
+	const [ageGroup, setAgeGroup] = useState<"All" | "U8" | "U15" | "U17">(
+		"All"
+	);
+
 	const handleOpenAssessment = (playerId: number) => {
 		navigate(`/player/${playerId}/assessment`);
 	};
 
+	const filterPlayers = (players: Player[]) => {
+		switch (ageGroup) {
+			case "U8":
+				return players.filter((p) => p.age < 8);
+			case "U15":
+				return players.filter((p) => p.age >= 8 && p.age < 15);
+			case "U17":
+				return players.filter((p) => p.age >= 15 && p.age < 17);
+			default:
+				return players;
+		}
+	};
+
+	const filteredPlayers = filterPlayers(players);
 	return (
 		<section className="flex flex-col items-start px-2 sm:px-4 py-3 w-full">
+			<div className="mb-4">
+				<label className="mr-2 font-medium text-sm">
+					Filter by Age Group:
+				</label>
+				<select
+					value={ageGroup}
+					onChange={(e) =>
+						setAgeGroup(e.target.value as typeof ageGroup)
+					}
+					className="border rounded px-2 py-1 text-sm"
+				>
+					<option value="All">All</option>
+					<option value="U8">U8</option>
+					<option value="U15">U15</option>
+					<option value="U17">U17</option>
+				</select>
+			</div>
 			<div className="w-full bg-white rounded-lg border border-[#dbe0e5] overflow-hidden">
 				<div className="overflow-x-auto">
 					<Table className="min-w-[800px]">
@@ -66,7 +101,7 @@ export const PlayerTableSection = ({
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{players.map((player) => (
+							{filteredPlayers.map((player) => (
 								<TableRow
 									key={player.id}
 									className="h-[60px] sm:h-[72px] border-t border-[#e5e8ea] hover:bg-[#f8f9fa] transition-colors"
@@ -127,6 +162,14 @@ export const PlayerTableSection = ({
 								</TableRow>
 							))}
 						</TableBody>
+					</Table>
+				</div>
+			</div>
+			<div className="w-full bg-white rounded-lg border border-[#dbe0e5] overflow-hidden">
+				<div className="overflow-x-auto">
+					<Table className="min-w-[800px]">
+						<TableHeader></TableHeader>
+						<TableBody></TableBody>
 					</Table>
 				</div>
 			</div>
