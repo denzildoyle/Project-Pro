@@ -230,36 +230,6 @@ export const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
 
 					<div className="space-y-2">
 						<Label
-							htmlFor="status"
-							className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-						>
-							Assessment Status
-						</Label>
-						<Select
-							value={formData.status}
-							onValueChange={(value) =>
-								handleInputChange("status", value)
-							}
-						>
-							<SelectTrigger className="font-['Manrope',Helvetica]">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{statuses.map((status) => (
-									<SelectItem
-										key={status}
-										value={status}
-										className="font-['Manrope',Helvetica]"
-									>
-										{status}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-
-					<div className="space-y-2">
-						<Label
 							htmlFor="photo"
 							className="font-['Manrope',Helvetica] font-medium text-[#111416]"
 						>
