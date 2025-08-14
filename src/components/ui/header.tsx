@@ -58,11 +58,13 @@ export const Header = (): JSX.Element => {
 											{item.label}
 										</Link>
 									) : (
-										<NavigationMenuLink
-											href={item.href}
-											className="font-['Manrope',Helvetica] font-medium text-sm text-[#111416] leading-[21px]"
-										>
-											{item.label}
+										<NavigationMenuLink asChild>
+											<a
+												href={item.href}
+												className="font-['Manrope',Helvetica] font-medium text-sm text-[#111416] leading-[21px]"
+											>
+												{item.label}
+											</a>
 										</NavigationMenuLink>
 									)}
 								</NavigationMenuItem>
