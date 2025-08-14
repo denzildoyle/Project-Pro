@@ -5,12 +5,14 @@ import { PlayerAssessment } from "./screens/PlayerAssessment";
 import { AssessmentDetail } from "./screens/AssessmentDetail";
 import { PlayerReport } from "./screens/PlayerReport";
 import { Training } from "./screens/Training";
+import { Registration } from "./screens/Registration";
 
 export const App = (): JSX.Element => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<StitchDesign />} />
+        <Route path="/register" element={<Registration />} />
         <Route path="/training" element={<Training />} />
         <Route path="/player/:playerId/assessment" element={<PlayerAssessment />} />
         <Route path="/player/:playerId/assessment/:assessmentId" element={<AssessmentDetail />} />
