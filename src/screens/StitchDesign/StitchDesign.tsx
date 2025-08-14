@@ -111,7 +111,7 @@ export const StitchDesign = (): JSX.Element => {
 		<div className="flex flex-col bg-white w-full min-h-screen">
 			<div className="flex flex-col flex-1 w-full bg-white">
 				<div className="flex flex-col w-full">
-					<Header />
+					<Header role="coach" />
 					<div className="flex justify-center px-4 sm:px-8 md:px-16 lg:px-40 py-5 w-full">
 						<div className="flex flex-col max-w-[960px] w-full">
 							<PlayerListHeaderSection

@@ -8,15 +8,37 @@ import {
 import { Button } from "../../components/ui/button";
 import { Bell } from "lucide-react";
 
-export const Header = (): JSX.Element => {
-	// Navigation menu items data
-	const navItems = [
+interface HeaderProps {
+	role: "coach" | "parent" | "public";
+}
+
+export const Header = ({ role }: HeaderProps): JSX.Element => {
+	const coachMenu = [
 		{ label: "Players", href: "#" },
 		{ label: "Training", href: "#" },
 		{ label: "Matches", href: "#" },
-		{ label: "Reports", href: "#" },
 		{ label: "Drills", href: "#" },
+		{ label: "Global Rating", href: "#" },
 	];
+
+	const parentMenu = [
+		{ label: "Training", href: "#" },
+		{ label: "Matches", href: "#" },
+		{ label: "Reports", href: "#" },
+		{ label: "Global Rating", href: "#" },
+	];
+
+	const publicMenu = [
+		{ label: "Training", href: "#" },
+		{ label: "Matches", href: "#" },
+	];
+
+	const menu =
+		role === "coach"
+			? coachMenu
+			: role === "parent"
+			? parentMenu
+			: publicMenu;
 
 	return (
 		<header className="flex items-center justify-between px-10 py-3 border-b border-[#e5e8ea] w-full">
@@ -47,7 +69,7 @@ export const Header = (): JSX.Element => {
 					{/* Navigation Menu */}
 					<NavigationMenu className="max-w-none">
 						<NavigationMenuList className="flex gap-9">
-							{navItems.map((item, index) => (
+							{menu.map((item, index) => (
 								<NavigationMenuItem key={index}>
 									<NavigationMenuLink
 										href={item.href}
