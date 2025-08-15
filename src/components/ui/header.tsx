@@ -14,7 +14,7 @@ export const Header = (): JSX.Element => {
 	const navItems = [
 		{ label: "Players", href: "#" },
 		{ label: "Training", href: "/training" },
-		{ label: "Matches", href: "#" },
+		{ label: "Matches", href: "/matches" },
 		{ label: "Reports", href: "#" },
 		{ label: "Drills", href: "#" },
 	];

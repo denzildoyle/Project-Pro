@@ -6,6 +6,7 @@ import { AssessmentDetail } from "./screens/AssessmentDetail";
 import { PlayerReport } from "./screens/PlayerReport";
 import { Training } from "./screens/Training";
 import { Registration } from "./screens/Registration";
+import { Matches } from "./screens/Matches";
 
 export const App = (): JSX.Element => {
   return (
@@ -14,6 +15,7 @@ export const App = (): JSX.Element => {
         <Route path="/" element={<StitchDesign />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/training" element={<Training />} />
+        <Route path="/matches" element={<Matches />} />
         <Route path="/player/:playerId/assessment" element={<PlayerAssessment />} />
         <Route path="/player/:playerId/assessment/:assessmentId" element={<AssessmentDetail />} />
         <Route path="/player/:playerId/report" element={<PlayerReport />} />
