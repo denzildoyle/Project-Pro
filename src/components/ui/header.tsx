@@ -16,7 +16,7 @@ export const Header = (): JSX.Element => {
 		{ label: "Training", href: "/training" },
 		{ label: "Matches", href: "/matches" },
 		{ label: "Reports", href: "#" },
-		{ label: "Drills", href: "#" },
+		{ label: "Drills", href: "/drills" },
 	];
 
 	return (
