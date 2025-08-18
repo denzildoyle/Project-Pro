@@ -144,7 +144,7 @@ export const AssessmentDetail = (): JSX.Element => {
 	return (
 		<div className="relative flex size-full min-h-screen flex-col bg-white overflow-x-hidden font-['Manrope','Noto_Sans',sans-serif]">
 			<div className="layout-container flex h-full grow flex-col">
-				<Header />
+				<Header role="coach" />
 				{/* Main Content */}
 				<div className="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-5">
 					<div className="layout-content-container flex flex-col max-w-[960px] flex-1">

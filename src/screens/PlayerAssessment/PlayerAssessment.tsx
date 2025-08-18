@@ -201,6 +201,15 @@ export const PlayerAssessment = (): JSX.Element => {
 
 					{/* Create New Assessment Button */}
 					<div className="flex px-4 py-3 justify-end">
+						<Button
+							onClick={() =>
+								navigate(`/player/${playerId}/report`)
+							}
+							variant="outline"
+							className="min-w-[84px] max-w-[480px] h-10 px-4 text-sm font-bold leading-normal tracking-[0.015em] font-['Manrope',Helvetica] transition-colors"
+						>
+							View Report
+						</Button>
 						<Button className="min-w-[84px] max-w-[480px] h-10 px-4 bg-[#0d80f2] hover:bg-[#0b6fd1] text-white text-sm font-bold leading-normal tracking-[0.015em] font-['Manrope',Helvetica] transition-colors">
 							Create New Assessment
 						</Button>
