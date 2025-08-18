@@ -185,8 +185,9 @@ export const Matches = ({
 	const [selectedDate, setSelectedDate] = useState<CalendarValue>(new Date());
 	const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-	const [newMatch, setNewMatch] = useState<Partial<Match>>({
+	const [isMatchFormOpen, setIsMatchFormOpen] = useState(false);
+	const [editingMatch, setEditingMatch] = useState<Match | null>(null);
+	const [formData, setFormData] = useState<Partial<Match>>({
 		date: "",
 		time: "",
 		homeTeam: "",
@@ -204,6 +205,28 @@ export const Matches = ({
 		},
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
+
+	// Reset form data to empty values
+	const resetFormData = () => {
+		setFormData({
+			date: "",
+			time: "",
+			homeTeam: "",
+			awayTeam: "",
+			venue: "",
+			ageGroup: "",
+			competition: "",
+			matchType: "",
+			status: "scheduled",
+			description: "",
+			objectives: [],
+			teamSheet: {
+				formation: "",
+				captain: "",
+			},
+		});
+		setErrors({});
+	};
 
 	// Get matches for a specific date
 	const getMatchesForDate = (date: Date): Match[] => {
@@ -267,14 +290,31 @@ export const Matches = ({
 		return "";
 	};
 
+	// Handle add match
 	const handleAddMatch = () => {
-		setIsAddModalOpen(true);
+		setEditingMatch(null);
+		resetFormData();
+		setIsMatchFormOpen(true);
+	};
+
+	// Handle edit match
+	const handleEditMatch = () => {
+		if (selectedMatch) {
+			setEditingMatch(selectedMatch);
+			setFormData({
+				...selectedMatch,
+				objectives: [...selectedMatch.objectives], // Create a copy of the array
+				teamSheet: { ...selectedMatch.teamSheet }, // Create a copy of the teamSheet object
+			});
+			setIsDetailsOpen(false);
+			setIsMatchFormOpen(true);
+		}
 	};
 
 	const handleInputChange = (field: string, value: string) => {
 		if (field.startsWith("teamSheet.")) {
 			const teamSheetField = field.split(".")[1];
-			setNewMatch((prev) => ({
+			setFormData((prev) => ({
 				...prev,
 				teamSheet: {
 					...prev.teamSheet!,
@@ -282,7 +322,7 @@ export const Matches = ({
 				},
 			}));
 		} else {
-			setNewMatch((prev) => ({
+			setFormData((prev) => ({
 				...prev,
 				[field]: value,
 			}));
@@ -303,7 +343,7 @@ export const Matches = ({
 			.map((item) => item.trim())
 			.filter((item) => item);
 
-		setNewMatch((prev) => ({
+		setFormData((prev) => ({
 			...prev,
 			[field]: items,
 		}));
@@ -312,16 +352,16 @@ export const Matches = ({
 	const validateForm = (): boolean => {
 		const newErrors: Record<string, string> = {};
 
-		if (!newMatch.date) newErrors.date = "Date is required";
-		if (!newMatch.time) newErrors.time = "Time is required";
-		if (!newMatch.homeTeam) newErrors.homeTeam = "Home team is required";
-		if (!newMatch.awayTeam) newErrors.awayTeam = "Away team is required";
-		if (!newMatch.venue) newErrors.venue = "Venue is required";
-		if (!newMatch.ageGroup) newErrors.ageGroup = "Age group is required";
-		if (!newMatch.competition)
+		if (!formData.date) newErrors.date = "Date is required";
+		if (!formData.time) newErrors.time = "Time is required";
+		if (!formData.homeTeam) newErrors.homeTeam = "Home team is required";
+		if (!formData.awayTeam) newErrors.awayTeam = "Away team is required";
+		if (!formData.venue) newErrors.venue = "Venue is required";
+		if (!formData.ageGroup) newErrors.ageGroup = "Age group is required";
+		if (!formData.competition)
 			newErrors.competition = "Competition is required";
-		if (!newMatch.matchType) newErrors.matchType = "Match type is required";
-		if (!newMatch.description)
+		if (!formData.matchType) newErrors.matchType = "Match type is required";
+		if (!formData.description)
 			newErrors.description = "Description is required";
 
 		setErrors(newErrors);
@@ -331,30 +371,23 @@ export const Matches = ({
 	const handleSubmit = () => {
 		if (!validateForm()) return;
 
-		// Here you would typically save to backend
-		console.log("New match:", newMatch);
-		alert("Match added successfully!");
+		if (editingMatch) {
+			// Update existing match
+			console.log("Updating match:", {
+				id: editingMatch.id,
+				...formData,
+			});
+			alert("Match updated successfully!");
+		} else {
+			// Create new match
+			console.log("New match:", formData);
+			alert("Match added successfully!");
+		}
 
-		// Reset form
-		setNewMatch({
-			date: "",
-			time: "",
-			homeTeam: "",
-			awayTeam: "",
-			venue: "",
-			ageGroup: "",
-			competition: "",
-			matchType: "",
-			status: "scheduled",
-			description: "",
-			objectives: [],
-			teamSheet: {
-				formation: "",
-				captain: "",
-			},
-		});
-		setErrors({});
-		setIsAddModalOpen(false);
+		// Reset form and close modal
+		resetFormData();
+		setEditingMatch(null);
+		setIsMatchFormOpen(false);
 	};
 
 	const getStatusColor = (status: string) => {
@@ -377,6 +410,8 @@ export const Matches = ({
 	const selectedDateMatches = selectedDate
 		? getMatchesForDate(selectedDate)
 		: [];
+
+	const isEditMode = editingMatch !== null;
 
 	return (
 		<div className="relative flex size-full min-h-screen flex-col bg-slate-50 overflow-x-hidden font-['Manrope','Noto_Sans',sans-serif]">
@@ -589,15 +624,17 @@ export const Matches = ({
 				</div>
 			</div>
 
-			{/* Add Match Modal */}
-			<Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+			{/* Add/Edit Match Modal */}
+			<Dialog open={isMatchFormOpen} onOpenChange={setIsMatchFormOpen}>
 				<DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
 					<DialogHeader>
 						<DialogTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416]">
-							Add New Match
+							{isEditMode ? "Edit Match" : "Add New Match"}
 						</DialogTitle>
 						<DialogDescription className="font-['Manrope',Helvetica] text-[#607589]">
-							Schedule a new match for your team
+							{isEditMode
+								? "Update match details"
+								: "Schedule a new match for your team"}
 						</DialogDescription>
 					</DialogHeader>
 
@@ -613,7 +650,7 @@ export const Matches = ({
 								<Input
 									id="date"
 									type="date"
-									value={newMatch.date}
+									value={formData.date}
 									onChange={(e) =>
 										handleInputChange(
 											"date",
@@ -641,7 +678,7 @@ export const Matches = ({
 								<Input
 									id="time"
 									type="time"
-									value={newMatch.time}
+									value={formData.time}
 									onChange={(e) =>
 										handleInputChange(
 											"time",
@@ -670,7 +707,7 @@ export const Matches = ({
 								</Label>
 								<Input
 									id="homeTeam"
-									value={newMatch.homeTeam}
+									value={formData.homeTeam}
 									onChange={(e) =>
 										handleInputChange(
 											"homeTeam",
@@ -698,7 +735,7 @@ export const Matches = ({
 								</Label>
 								<Input
 									id="awayTeam"
-									value={newMatch.awayTeam}
+									value={formData.awayTeam}
 									onChange={(e) =>
 										handleInputChange(
 											"awayTeam",
@@ -727,7 +764,7 @@ export const Matches = ({
 							</Label>
 							<Input
 								id="venue"
-								value={newMatch.venue}
+								value={formData.venue}
 								onChange={(e) =>
 									handleInputChange("venue", e.target.value)
 								}
@@ -752,7 +789,7 @@ export const Matches = ({
 									Age Group *
 								</Label>
 								<Select
-									value={newMatch.ageGroup}
+									value={formData.ageGroup}
 									onValueChange={(value) =>
 										handleInputChange("ageGroup", value)
 									}
@@ -788,7 +825,7 @@ export const Matches = ({
 								</Label>
 								<Input
 									id="competition"
-									value={newMatch.competition}
+									value={formData.competition}
 									onChange={(e) =>
 										handleInputChange(
 											"competition",
@@ -818,7 +855,7 @@ export const Matches = ({
 								Match Type *
 							</Label>
 							<Select
-								value={newMatch.matchType}
+								value={formData.matchType}
 								onValueChange={(value) =>
 									handleInputChange("matchType", value)
 								}
@@ -861,7 +898,7 @@ export const Matches = ({
 							</Label>
 							<Input
 								id="description"
-								value={newMatch.description}
+								value={formData.description}
 								onChange={(e) =>
 									handleInputChange(
 										"description",
@@ -889,7 +926,7 @@ export const Matches = ({
 							</Label>
 							<Input
 								id="objectives"
-								value={newMatch.objectives?.join(", ") || ""}
+								value={formData.objectives?.join(", ") || ""}
 								onChange={(e) =>
 									handleArrayInputChange(
 										"objectives",
@@ -911,7 +948,7 @@ export const Matches = ({
 								</Label>
 								<Input
 									id="formation"
-									value={newMatch.teamSheet?.formation || ""}
+									value={formData.teamSheet?.formation || ""}
 									onChange={(e) =>
 										handleInputChange(
 											"teamSheet.formation",
@@ -932,7 +969,7 @@ export const Matches = ({
 								</Label>
 								<Input
 									id="captain"
-									value={newMatch.teamSheet?.captain || ""}
+									value={formData.teamSheet?.captain || ""}
 									onChange={(e) =>
 										handleInputChange(
 											"teamSheet.captain",
@@ -949,7 +986,7 @@ export const Matches = ({
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() => setIsAddModalOpen(false)}
+								onClick={() => setIsMatchFormOpen(false)}
 								className="font-['Manrope',Helvetica] font-medium"
 							>
 								Cancel
@@ -959,7 +996,7 @@ export const Matches = ({
 								onClick={handleSubmit}
 								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
 							>
-								Add Match
+								{isEditMode ? "Update Match" : "Add Match"}
 							</Button>
 						</DialogFooter>
 					</div>
@@ -1144,7 +1181,10 @@ export const Matches = ({
 									Close
 								</Button>
 								{selectedMatch.status === "scheduled" && (
-									<Button className="font-['Manrope',Helvetica] bg-[#111416] hover:bg-[#2a2d31]">
+									<Button
+										onClick={handleEditMatch}
+										className="font-['Manrope',Helvetica] bg-[#111416] hover:bg-[#2a2d31]"
+									>
 										Edit Match
 									</Button>
 								)}
