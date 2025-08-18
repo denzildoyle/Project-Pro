@@ -10,6 +10,7 @@ import { Registration } from "./screens/Registration";
 import { Matches } from "./screens/Matches";
 import { Drills } from "./screens/Drills";
 import { NotFound } from "./screens/NotFound";
+import { Login } from "./screens/Login";
 
 const getPageTitle = (pathname: string): string => {
 	if (pathname.startsWith("/training")) return "Training | Project Pro";
@@ -31,6 +32,7 @@ function AppRoutes() {
 		<Routes>
 			<Route path="/" element={<StitchDesign />} />
 			<Route path="/register" element={<Registration />} />
+			<Route path="/login" element={<Login />} />
 			<Route path="/training" element={<Training />} />
 			<Route path="/matches" element={<Matches />} />
 			<Route path="/drills" element={<Drills />} />
