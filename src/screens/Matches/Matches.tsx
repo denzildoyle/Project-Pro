@@ -2,10 +2,20 @@ import React, { useState } from "react";
 import Calendar from "react-calendar";
 import { Header } from "../../components/ui/header";
 import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../../components/ui/select";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "../../components/ui/dialog";
@@ -14,9 +24,10 @@ import {
 	Clock,
 	MapPin,
 	Users,
-	Calendar as CalendarIcon,
+	CalendarIcon,
 	Trophy,
 	Target,
+	Plus,
 } from "lucide-react";
 import "react-calendar/dist/Calendar.css";
 
@@ -30,7 +41,6 @@ interface Match {
 	ageGroup: string;
 	competition: string;
 	matchType: string;
-	referee: string;
 	homeScore?: number;
 	awayScore?: number;
 	status: "scheduled" | "live" | "completed" | "cancelled" | "postponed";
@@ -39,9 +49,7 @@ interface Match {
 	teamSheet: {
 		formation: string;
 		captain: string;
-		keyPlayers: string[];
 	};
-	weather?: string;
 	attendance?: number;
 }
 
@@ -57,7 +65,6 @@ const matchData: Match[] = [
 		ageGroup: "U15",
 		competition: "Youth League",
 		matchType: "League Match",
-		referee: "John Smith",
 		status: "scheduled",
 		description:
 			"Important league match against City Academy. This is a crucial game for maintaining our position at the top of the table.",
@@ -69,9 +76,7 @@ const matchData: Match[] = [
 		teamSheet: {
 			formation: "4-3-3",
 			captain: "Ethan Harper",
-			keyPlayers: ["Ethan Harper", "Liam Carter", "Noah Bennett"],
 		},
-		weather: "Sunny, 22°C",
 	},
 	{
 		id: 2,
@@ -83,7 +88,6 @@ const matchData: Match[] = [
 		ageGroup: "U17",
 		competition: "Cup Competition",
 		matchType: "Quarter Final",
-		referee: "Sarah Johnson",
 		status: "scheduled",
 		description:
 			"Cup quarter-final away match. A challenging fixture against a strong United Youth side.",
@@ -95,9 +99,7 @@ const matchData: Match[] = [
 		teamSheet: {
 			formation: "4-5-1",
 			captain: "Oliver Reed",
-			keyPlayers: ["Oliver Reed", "Lucas Morgan", "Henry Hayes"],
 		},
-		weather: "Cloudy, 18°C",
 	},
 	{
 		id: 3,
@@ -109,7 +111,6 @@ const matchData: Match[] = [
 		ageGroup: "U13",
 		competition: "Friendly",
 		matchType: "Friendly Match",
-		referee: "Mike Wilson",
 		status: "scheduled",
 		description:
 			"Friendly match to give younger players match experience and test new tactical approaches.",
@@ -121,7 +122,6 @@ const matchData: Match[] = [
 		teamSheet: {
 			formation: "4-4-2",
 			captain: "Daniel Blake",
-			keyPlayers: ["Daniel Blake", "Owen Hughes", "Samuel Cox"],
 		},
 	},
 	{
@@ -134,7 +134,6 @@ const matchData: Match[] = [
 		ageGroup: "U17",
 		competition: "Youth League",
 		matchType: "League Match",
-		referee: "David Brown",
 		status: "scheduled",
 		description:
 			"Evening fixture under lights against Elite Academy. A test of our squad depth and tactical flexibility.",
@@ -146,9 +145,7 @@ const matchData: Match[] = [
 		teamSheet: {
 			formation: "3-5-2",
 			captain: "Lucas Morgan",
-			keyPlayers: ["Lucas Morgan", "Henry Hayes", "Elijah Foster"],
 		},
-		weather: "Clear, 15°C",
 	},
 	{
 		id: 5,
@@ -160,7 +157,6 @@ const matchData: Match[] = [
 		ageGroup: "U15",
 		competition: "Youth League",
 		matchType: "League Match",
-		referee: "Emma Davis",
 		homeScore: 3,
 		awayScore: 1,
 		status: "completed",
@@ -174,19 +170,40 @@ const matchData: Match[] = [
 		teamSheet: {
 			formation: "4-3-3",
 			captain: "Ethan Harper",
-			keyPlayers: ["Ethan Harper", "Liam Carter", "Noah Bennett"],
 		},
-		weather: "Sunny, 20°C",
 		attendance: 150,
 	},
 ];
 
 type CalendarValue = Date | null;
 
-export const Matches = (): JSX.Element => {
+export const Matches = ({
+	role = "parent",
+}: {
+	role?: "coach" | "parent" | "public";
+}): JSX.Element => {
 	const [selectedDate, setSelectedDate] = useState<CalendarValue>(new Date());
 	const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+	const [newMatch, setNewMatch] = useState<Partial<Match>>({
+		date: "",
+		time: "",
+		homeTeam: "",
+		awayTeam: "",
+		venue: "",
+		ageGroup: "",
+		competition: "",
+		matchType: "",
+		status: "scheduled",
+		description: "",
+		objectives: [],
+		teamSheet: {
+			formation: "",
+			captain: "",
+		},
+	});
+	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	// Get matches for a specific date
 	const getMatchesForDate = (date: Date): Match[] => {
@@ -250,6 +267,96 @@ export const Matches = (): JSX.Element => {
 		return "";
 	};
 
+	const handleAddMatch = () => {
+		setIsAddModalOpen(true);
+	};
+
+	const handleInputChange = (field: string, value: string) => {
+		if (field.startsWith("teamSheet.")) {
+			const teamSheetField = field.split(".")[1];
+			setNewMatch((prev) => ({
+				...prev,
+				teamSheet: {
+					...prev.teamSheet!,
+					[teamSheetField]: value,
+				},
+			}));
+		} else {
+			setNewMatch((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+		}
+
+		// Clear error when user starts typing
+		if (errors[field]) {
+			setErrors((prev) => ({
+				...prev,
+				[field]: "",
+			}));
+		}
+	};
+
+	const handleArrayInputChange = (field: "objectives", value: string) => {
+		const items = value
+			.split(",")
+			.map((item) => item.trim())
+			.filter((item) => item);
+
+		setNewMatch((prev) => ({
+			...prev,
+			[field]: items,
+		}));
+	};
+
+	const validateForm = (): boolean => {
+		const newErrors: Record<string, string> = {};
+
+		if (!newMatch.date) newErrors.date = "Date is required";
+		if (!newMatch.time) newErrors.time = "Time is required";
+		if (!newMatch.homeTeam) newErrors.homeTeam = "Home team is required";
+		if (!newMatch.awayTeam) newErrors.awayTeam = "Away team is required";
+		if (!newMatch.venue) newErrors.venue = "Venue is required";
+		if (!newMatch.ageGroup) newErrors.ageGroup = "Age group is required";
+		if (!newMatch.competition)
+			newErrors.competition = "Competition is required";
+		if (!newMatch.matchType) newErrors.matchType = "Match type is required";
+		if (!newMatch.description)
+			newErrors.description = "Description is required";
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
+	const handleSubmit = () => {
+		if (!validateForm()) return;
+
+		// Here you would typically save to backend
+		console.log("New match:", newMatch);
+		alert("Match added successfully!");
+
+		// Reset form
+		setNewMatch({
+			date: "",
+			time: "",
+			homeTeam: "",
+			awayTeam: "",
+			venue: "",
+			ageGroup: "",
+			competition: "",
+			matchType: "",
+			status: "scheduled",
+			description: "",
+			objectives: [],
+			teamSheet: {
+				formation: "",
+				captain: "",
+			},
+		});
+		setErrors({});
+		setIsAddModalOpen(false);
+	};
+
 	const getStatusColor = (status: string) => {
 		switch (status) {
 			case "scheduled":
@@ -290,6 +397,13 @@ export const Matches = (): JSX.Element => {
 									groups and competitions
 								</p>
 							</div>
+							<Button
+								onClick={handleAddMatch}
+								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+							>
+								<Plus className="w-4 h-4 mr-2" />
+								Add Match
+							</Button>
 						</div>
 
 						{/* Calendar and Matches Layout */}
@@ -475,6 +589,383 @@ export const Matches = (): JSX.Element => {
 				</div>
 			</div>
 
+			{/* Add Match Modal */}
+			<Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+				<DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416]">
+							Add New Match
+						</DialogTitle>
+						<DialogDescription className="font-['Manrope',Helvetica] text-[#607589]">
+							Schedule a new match for your team
+						</DialogDescription>
+					</DialogHeader>
+
+					<div onSubmit={handleSubmit} className="space-y-4">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="date"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Date *
+								</Label>
+								<Input
+									id="date"
+									type="date"
+									value={newMatch.date}
+									onChange={(e) =>
+										handleInputChange(
+											"date",
+											e.target.value
+										)
+									}
+									className={`font-['Manrope',Helvetica] ${
+										errors.date ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.date && (
+									<p className="text-sm text-red-500">
+										{errors.date}
+									</p>
+								)}
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="time"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Time *
+								</Label>
+								<Input
+									id="time"
+									type="time"
+									value={newMatch.time}
+									onChange={(e) =>
+										handleInputChange(
+											"time",
+											e.target.value
+										)
+									}
+									className={`font-['Manrope',Helvetica] ${
+										errors.time ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.time && (
+									<p className="text-sm text-red-500">
+										{errors.time}
+									</p>
+								)}
+							</div>
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="homeTeam"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Home Team *
+								</Label>
+								<Input
+									id="homeTeam"
+									value={newMatch.homeTeam}
+									onChange={(e) =>
+										handleInputChange(
+											"homeTeam",
+											e.target.value
+										)
+									}
+									placeholder="Enter home team name"
+									className={`font-['Manrope',Helvetica] ${
+										errors.homeTeam ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.homeTeam && (
+									<p className="text-sm text-red-500">
+										{errors.homeTeam}
+									</p>
+								)}
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="awayTeam"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Away Team *
+								</Label>
+								<Input
+									id="awayTeam"
+									value={newMatch.awayTeam}
+									onChange={(e) =>
+										handleInputChange(
+											"awayTeam",
+											e.target.value
+										)
+									}
+									placeholder="Enter away team name"
+									className={`font-['Manrope',Helvetica] ${
+										errors.awayTeam ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.awayTeam && (
+									<p className="text-sm text-red-500">
+										{errors.awayTeam}
+									</p>
+								)}
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="venue"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Venue *
+							</Label>
+							<Input
+								id="venue"
+								value={newMatch.venue}
+								onChange={(e) =>
+									handleInputChange("venue", e.target.value)
+								}
+								placeholder="Enter match venue"
+								className={`font-['Manrope',Helvetica] ${
+									errors.venue ? "border-red-500" : ""
+								}`}
+							/>
+							{errors.venue && (
+								<p className="text-sm text-red-500">
+									{errors.venue}
+								</p>
+							)}
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="ageGroup"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Age Group *
+								</Label>
+								<Select
+									value={newMatch.ageGroup}
+									onValueChange={(value) =>
+										handleInputChange("ageGroup", value)
+									}
+								>
+									<SelectTrigger
+										className={`font-['Manrope',Helvetica] ${
+											errors.ageGroup
+												? "border-red-500"
+												: ""
+										}`}
+									>
+										<SelectValue placeholder="Select age group" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="U13">U13</SelectItem>
+										<SelectItem value="U15">U15</SelectItem>
+										<SelectItem value="U17">U17</SelectItem>
+									</SelectContent>
+								</Select>
+								{errors.ageGroup && (
+									<p className="text-sm text-red-500">
+										{errors.ageGroup}
+									</p>
+								)}
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="competition"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Competition *
+								</Label>
+								<Input
+									id="competition"
+									value={newMatch.competition}
+									onChange={(e) =>
+										handleInputChange(
+											"competition",
+											e.target.value
+										)
+									}
+									placeholder="e.g., Youth League, Cup Competition"
+									className={`font-['Manrope',Helvetica] ${
+										errors.competition
+											? "border-red-500"
+											: ""
+									}`}
+								/>
+								{errors.competition && (
+									<p className="text-sm text-red-500">
+										{errors.competition}
+									</p>
+								)}
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="matchType"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Match Type *
+							</Label>
+							<Select
+								value={newMatch.matchType}
+								onValueChange={(value) =>
+									handleInputChange("matchType", value)
+								}
+							>
+								<SelectTrigger
+									className={`font-['Manrope',Helvetica] ${
+										errors.matchType ? "border-red-500" : ""
+									}`}
+								>
+									<SelectValue placeholder="Select match type" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="League Match">
+										League Match
+									</SelectItem>
+									<SelectItem value="Cup Match">
+										Cup Match
+									</SelectItem>
+									<SelectItem value="Friendly Match">
+										Friendly Match
+									</SelectItem>
+									<SelectItem value="Tournament">
+										Tournament
+									</SelectItem>
+								</SelectContent>
+							</Select>
+							{errors.matchType && (
+								<p className="text-sm text-red-500">
+									{errors.matchType}
+								</p>
+							)}
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="description"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Description *
+							</Label>
+							<Input
+								id="description"
+								value={newMatch.description}
+								onChange={(e) =>
+									handleInputChange(
+										"description",
+										e.target.value
+									)
+								}
+								placeholder="Describe the match importance and context"
+								className={`font-['Manrope',Helvetica] ${
+									errors.description ? "border-red-500" : ""
+								}`}
+							/>
+							{errors.description && (
+								<p className="text-sm text-red-500">
+									{errors.description}
+								</p>
+							)}
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="objectives"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Match Objectives (comma-separated)
+							</Label>
+							<Input
+								id="objectives"
+								value={newMatch.objectives?.join(", ") || ""}
+								onChange={(e) =>
+									handleArrayInputChange(
+										"objectives",
+										e.target.value
+									)
+								}
+								placeholder="e.g., Control possession, Keep clean sheet"
+								className="font-['Manrope',Helvetica]"
+							/>
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="formation"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Formation
+								</Label>
+								<Input
+									id="formation"
+									value={newMatch.teamSheet?.formation || ""}
+									onChange={(e) =>
+										handleInputChange(
+											"teamSheet.formation",
+											e.target.value
+										)
+									}
+									placeholder="e.g., 4-3-3"
+									className="font-['Manrope',Helvetica]"
+								/>
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="captain"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Captain
+								</Label>
+								<Input
+									id="captain"
+									value={newMatch.teamSheet?.captain || ""}
+									onChange={(e) =>
+										handleInputChange(
+											"teamSheet.captain",
+											e.target.value
+										)
+									}
+									placeholder="Enter captain name"
+									className="font-['Manrope',Helvetica]"
+								/>
+							</div>
+						</div>
+
+						<DialogFooter className="gap-2 sm:gap-0">
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setIsAddModalOpen(false)}
+								className="font-['Manrope',Helvetica] font-medium"
+							>
+								Cancel
+							</Button>
+							<Button
+								type="button"
+								onClick={handleSubmit}
+								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+							>
+								Add Match
+							</Button>
+						</DialogFooter>
+					</div>
+				</DialogContent>
+			</Dialog>
+
 			{/* Match Details Modal */}
 			<Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
 				<DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
@@ -552,14 +1043,6 @@ export const Matches = (): JSX.Element => {
 										</div>
 										<div className="text-sm">
 											<span className="font-medium font-['Manrope',Helvetica]">
-												Referee:
-											</span>
-											<span className="text-[#60758a] ml-2 font-['Manrope',Helvetica]">
-												{selectedMatch.referee}
-											</span>
-										</div>
-										<div className="text-sm">
-											<span className="font-medium font-['Manrope',Helvetica]">
 												Status:
 											</span>
 											<Badge
@@ -574,30 +1057,17 @@ export const Matches = (): JSX.Element => {
 									</div>
 								</div>
 
-								{/* Weather & Attendance (if available) */}
-								{(selectedMatch.weather ||
-									selectedMatch.attendance) && (
-									<div className="grid grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
-										{selectedMatch.weather && (
-											<div className="text-sm">
-												<span className="font-medium font-['Manrope',Helvetica]">
-													Weather:
-												</span>
-												<span className="text-[#60758a] ml-2 font-['Manrope',Helvetica]">
-													{selectedMatch.weather}
-												</span>
-											</div>
-										)}
-										{selectedMatch.attendance && (
-											<div className="text-sm">
-												<span className="font-medium font-['Manrope',Helvetica]">
-													Attendance:
-												</span>
-												<span className="text-[#60758a] ml-2 font-['Manrope',Helvetica]">
-													{selectedMatch.attendance}
-												</span>
-											</div>
-										)}
+								{/* Attendance (if available) */}
+								{selectedMatch.attendance && (
+									<div className="p-3 bg-gray-50 rounded-lg">
+										<div className="text-sm">
+											<span className="font-medium font-['Manrope',Helvetica]">
+												Attendance:
+											</span>
+											<span className="text-[#60758a] ml-2 font-['Manrope',Helvetica]">
+												{selectedMatch.attendance}
+											</span>
+										</div>
 									</div>
 								)}
 
@@ -616,7 +1086,7 @@ export const Matches = (): JSX.Element => {
 									<h4 className="font-semibold text-[#111418] mb-2 font-['Manrope',Helvetica]">
 										Team Information
 									</h4>
-									<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-3 bg-blue-50 rounded-lg">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-blue-50 rounded-lg">
 										<div className="text-sm">
 											<span className="font-medium font-['Manrope',Helvetica]">
 												Formation:
@@ -639,46 +1109,30 @@ export const Matches = (): JSX.Element => {
 												}
 											</span>
 										</div>
-										<div className="text-sm">
-											<span className="font-medium font-['Manrope',Helvetica]">
-												Key Players:
-											</span>
-											<div className="mt-1">
-												{selectedMatch.teamSheet.keyPlayers.map(
-													(player, index) => (
-														<Badge
-															key={index}
-															variant="outline"
-															className="text-xs mr-1 mb-1 font-['Manrope',Helvetica]"
-														>
-															{player}
-														</Badge>
-													)
-												)}
-											</div>
-										</div>
 									</div>
 								</div>
 
 								{/* Match Objectives */}
-								<div>
-									<h4 className="font-semibold text-[#111418] mb-2 font-['Manrope',Helvetica]">
-										Match Objectives
-									</h4>
-									<ul className="space-y-1">
-										{selectedMatch.objectives.map(
-											(objective, index) => (
-												<li
-													key={index}
-													className="text-[#60758a] text-sm flex items-start gap-2 font-['Manrope',Helvetica]"
-												>
-													<Target className="w-3 h-3 text-blue-500 mt-1 flex-shrink-0" />
-													{objective}
-												</li>
-											)
-										)}
-									</ul>
-								</div>
+								{role === "coach" && (
+									<div>
+										<h4 className="font-semibold text-[#111418] mb-2 font-['Manrope',Helvetica]">
+											Match Objectives
+										</h4>
+										<ul className="space-y-1">
+											{selectedMatch.objectives.map(
+												(objective, index) => (
+													<li
+														key={index}
+														className="text-[#60758a] text-sm flex items-start gap-2 font-['Manrope',Helvetica]"
+													>
+														<Target className="w-3 h-3 text-blue-500 mt-1 flex-shrink-0" />
+														{objective}
+													</li>
+												)
+											)}
+										</ul>
+									</div>
+								)}
 							</div>
 
 							<div className="flex justify-end gap-2 pt-4">

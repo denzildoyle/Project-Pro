@@ -1,10 +1,20 @@
 import React, { useState } from "react";
 import { Header } from "../../components/ui/header";
 import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../../components/ui/select";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "../../components/ui/dialog";
@@ -16,7 +26,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
 import {
 	Search,
 	Users,
@@ -29,14 +38,8 @@ import {
 	Package,
 	User,
 	Filter,
+	Plus,
 } from "lucide-react";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "../../components/ui/select";
 
 interface Drill {
 	id: number;
@@ -342,11 +345,126 @@ export const Drills = (): JSX.Element => {
 	>("all");
 	const [filterAgeGroup, setFilterAgeGroup] = useState<string>("all");
 	const [filterDifficulty, setFilterDifficulty] = useState<string>("all");
+	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+	const [newDrill, setNewDrill] = useState<Partial<Drill>>({
+		title: "",
+		type: "training",
+		description: "",
+		drillDesign: "",
+		ageGroup: "",
+		topic: "",
+		equipment: [],
+		numberOfPlayers: "",
+		spaceRequired: "",
+		duration: "",
+		difficulty: "Beginner",
+		coach: "",
+		objectives: [],
+		instructions: [],
+		variations: [],
+		safetyNotes: [],
+		hasScoring: false,
+		scoringCriteria: [],
+	});
+	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	// Handle drill click
 	const handleDrillClick = (drill: Drill) => {
 		setSelectedDrill(drill);
 		setIsDetailsOpen(true);
+	};
+
+	const handleAddDrill = () => {
+		setIsAddModalOpen(true);
+	};
+
+	const handleInputChange = (field: keyof Drill, value: string | boolean) => {
+		setNewDrill((prev) => ({
+			...prev,
+			[field]: value,
+		}));
+
+		// Clear error when user starts typing
+		if (errors[field as string]) {
+			setErrors((prev) => ({
+				...prev,
+				[field as string]: "",
+			}));
+		}
+	};
+
+	const handleArrayInputChange = (
+		field:
+			| "equipment"
+			| "objectives"
+			| "instructions"
+			| "variations"
+			| "safetyNotes"
+			| "scoringCriteria",
+		value: string
+	) => {
+		const items = value
+			.split(",")
+			.map((item) => item.trim())
+			.filter((item) => item);
+		setNewDrill((prev) => ({
+			...prev,
+			[field]: items,
+		}));
+	};
+
+	const validateForm = (): boolean => {
+		const newErrors: Record<string, string> = {};
+
+		if (!newDrill.title) newErrors.title = "Title is required";
+		if (!newDrill.description)
+			newErrors.description = "Description is required";
+		if (!newDrill.drillDesign)
+			newErrors.drillDesign = "Drill design is required";
+		if (!newDrill.ageGroup) newErrors.ageGroup = "Age group is required";
+		if (!newDrill.topic) newErrors.topic = "Topic is required";
+		if (!newDrill.numberOfPlayers)
+			newErrors.numberOfPlayers = "Number of players is required";
+		if (!newDrill.spaceRequired)
+			newErrors.spaceRequired = "Space required is required";
+		if (!newDrill.duration) newErrors.duration = "Duration is required";
+		if (!newDrill.coach) newErrors.coach = "Coach is required";
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!validateForm()) return;
+
+		// Here you would typically save to backend
+		console.log("New drill:", newDrill);
+		alert("Drill added successfully!");
+
+		// Reset form
+		setNewDrill({
+			title: "",
+			type: "training",
+			description: "",
+			drillDesign: "",
+			ageGroup: "",
+			topic: "",
+			equipment: [],
+			numberOfPlayers: "",
+			spaceRequired: "",
+			duration: "",
+			difficulty: "Beginner",
+			coach: "",
+			objectives: [],
+			instructions: [],
+			variations: [],
+			safetyNotes: [],
+			hasScoring: false,
+			scoringCriteria: [],
+		});
+		setErrors({});
+		setIsAddModalOpen(false);
 	};
 
 	// Filter drills based on search and filters
@@ -412,8 +530,12 @@ export const Drills = (): JSX.Element => {
 									assessment drills for all age groups
 								</p>
 							</div>
-							<Button className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white">
-								Add New Drill
+							<Button
+								onClick={handleAddDrill}
+								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+							>
+								<Plus className="w-4 h-4 mr-2" />
+								Add Drill
 							</Button>
 						</div>
 
@@ -644,6 +766,516 @@ export const Drills = (): JSX.Element => {
 					</div>
 				</div>
 			</div>
+
+			{/* Add Drill Modal */}
+			<Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+				<DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416]">
+							Add New Drill
+						</DialogTitle>
+						<DialogDescription className="font-['Manrope',Helvetica] text-[#607589]">
+							Create a new drill for your coaching library
+						</DialogDescription>
+					</DialogHeader>
+
+					<form onSubmit={handleSubmit} className="space-y-4">
+						<div className="space-y-2">
+							<Label
+								htmlFor="title"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Drill Title *
+							</Label>
+							<Input
+								id="title"
+								value={newDrill.title}
+								onChange={(e) =>
+									handleInputChange("title", e.target.value)
+								}
+								placeholder="Enter drill title"
+								className={`font-['Manrope',Helvetica] ${
+									errors.title ? "border-red-500" : ""
+								}`}
+							/>
+							{errors.title && (
+								<p className="text-sm text-red-500">
+									{errors.title}
+								</p>
+							)}
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="type"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Drill Type *
+								</Label>
+								<Select
+									value={newDrill.type}
+									onValueChange={(
+										value: "assessment" | "training"
+									) => handleInputChange("type", value)}
+								>
+									<SelectTrigger className="font-['Manrope',Helvetica]">
+										<SelectValue placeholder="Select drill type" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="training">
+											Training
+										</SelectItem>
+										<SelectItem value="assessment">
+											Assessment
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="ageGroup"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Age Group *
+								</Label>
+								<Select
+									value={newDrill.ageGroup}
+									onValueChange={(value) =>
+										handleInputChange("ageGroup", value)
+									}
+								>
+									<SelectTrigger
+										className={`font-['Manrope',Helvetica] ${
+											errors.ageGroup
+												? "border-red-500"
+												: ""
+										}`}
+									>
+										<SelectValue placeholder="Select age group" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="U13">U13</SelectItem>
+										<SelectItem value="U15">U15</SelectItem>
+										<SelectItem value="U17">U17</SelectItem>
+									</SelectContent>
+								</Select>
+								{errors.ageGroup && (
+									<p className="text-sm text-red-500">
+										{errors.ageGroup}
+									</p>
+								)}
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="description"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Description *
+							</Label>
+							<Input
+								id="description"
+								value={newDrill.description}
+								onChange={(e) =>
+									handleInputChange(
+										"description",
+										e.target.value
+									)
+								}
+								placeholder="Describe the drill purpose and benefits"
+								className={`font-['Manrope',Helvetica] ${
+									errors.description ? "border-red-500" : ""
+								}`}
+							/>
+							{errors.description && (
+								<p className="text-sm text-red-500">
+									{errors.description}
+								</p>
+							)}
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="drillDesign"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Drill Design *
+							</Label>
+							<Input
+								id="drillDesign"
+								value={newDrill.drillDesign}
+								onChange={(e) =>
+									handleInputChange(
+										"drillDesign",
+										e.target.value
+									)
+								}
+								placeholder="Describe the drill setup and layout"
+								className={`font-['Manrope',Helvetica] ${
+									errors.drillDesign ? "border-red-500" : ""
+								}`}
+							/>
+							{errors.drillDesign && (
+								<p className="text-sm text-red-500">
+									{errors.drillDesign}
+								</p>
+							)}
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="topic"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Topic *
+								</Label>
+								<Input
+									id="topic"
+									value={newDrill.topic}
+									onChange={(e) =>
+										handleInputChange(
+											"topic",
+											e.target.value
+										)
+									}
+									placeholder="e.g., Ball Control & Dribbling"
+									className={`font-['Manrope',Helvetica] ${
+										errors.topic ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.topic && (
+									<p className="text-sm text-red-500">
+										{errors.topic}
+									</p>
+								)}
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="difficulty"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Difficulty *
+								</Label>
+								<Select
+									value={newDrill.difficulty}
+									onValueChange={(
+										value:
+											| "Beginner"
+											| "Intermediate"
+											| "Advanced"
+									) => handleInputChange("difficulty", value)}
+								>
+									<SelectTrigger className="font-['Manrope',Helvetica]">
+										<SelectValue placeholder="Select difficulty" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="Beginner">
+											Beginner
+										</SelectItem>
+										<SelectItem value="Intermediate">
+											Intermediate
+										</SelectItem>
+										<SelectItem value="Advanced">
+											Advanced
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="numberOfPlayers"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Number of Players *
+								</Label>
+								<Input
+									id="numberOfPlayers"
+									value={newDrill.numberOfPlayers}
+									onChange={(e) =>
+										handleInputChange(
+											"numberOfPlayers",
+											e.target.value
+										)
+									}
+									placeholder="e.g., 1-4 players"
+									className={`font-['Manrope',Helvetica] ${
+										errors.numberOfPlayers
+											? "border-red-500"
+											: ""
+									}`}
+								/>
+								{errors.numberOfPlayers && (
+									<p className="text-sm text-red-500">
+										{errors.numberOfPlayers}
+									</p>
+								)}
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="spaceRequired"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Space Required *
+								</Label>
+								<Input
+									id="spaceRequired"
+									value={newDrill.spaceRequired}
+									onChange={(e) =>
+										handleInputChange(
+											"spaceRequired",
+											e.target.value
+										)
+									}
+									placeholder="e.g., 20ft x 10ft"
+									className={`font-['Manrope',Helvetica] ${
+										errors.spaceRequired
+											? "border-red-500"
+											: ""
+									}`}
+								/>
+								{errors.spaceRequired && (
+									<p className="text-sm text-red-500">
+										{errors.spaceRequired}
+									</p>
+								)}
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="duration"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Duration *
+								</Label>
+								<Input
+									id="duration"
+									value={newDrill.duration}
+									onChange={(e) =>
+										handleInputChange(
+											"duration",
+											e.target.value
+										)
+									}
+									placeholder="e.g., 15 minutes"
+									className={`font-['Manrope',Helvetica] ${
+										errors.duration ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.duration && (
+									<p className="text-sm text-red-500">
+										{errors.duration}
+									</p>
+								)}
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="coach"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Coach *
+							</Label>
+							<Input
+								id="coach"
+								value={newDrill.coach}
+								onChange={(e) =>
+									handleInputChange("coach", e.target.value)
+								}
+								placeholder="Enter coach name"
+								className={`font-['Manrope',Helvetica] ${
+									errors.coach ? "border-red-500" : ""
+								}`}
+							/>
+							{errors.coach && (
+								<p className="text-sm text-red-500">
+									{errors.coach}
+								</p>
+							)}
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="equipment"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Equipment (comma-separated)
+							</Label>
+							<Input
+								id="equipment"
+								value={newDrill.equipment?.join(", ") || ""}
+								onChange={(e) =>
+									handleArrayInputChange(
+										"equipment",
+										e.target.value
+									)
+								}
+								placeholder="e.g., 8 Cones, 1 Football per player, Stopwatch"
+								className="font-['Manrope',Helvetica]"
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="objectives"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Objectives (comma-separated)
+							</Label>
+							<Input
+								id="objectives"
+								value={newDrill.objectives?.join(", ") || ""}
+								onChange={(e) =>
+									handleArrayInputChange(
+										"objectives",
+										e.target.value
+									)
+								}
+								placeholder="e.g., Assess ball control under pressure, Evaluate agility"
+								className="font-['Manrope',Helvetica]"
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="instructions"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Instructions (comma-separated)
+							</Label>
+							<Input
+								id="instructions"
+								value={newDrill.instructions?.join(", ") || ""}
+								onChange={(e) =>
+									handleArrayInputChange(
+										"instructions",
+										e.target.value
+									)
+								}
+								placeholder="e.g., Set up 8 cones in a straight line, Player starts with ball at first cone"
+								className="font-['Manrope',Helvetica]"
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="variations"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Variations (comma-separated)
+							</Label>
+							<Input
+								id="variations"
+								value={newDrill.variations?.join(", ") || ""}
+								onChange={(e) =>
+									handleArrayInputChange(
+										"variations",
+										e.target.value
+									)
+								}
+								placeholder="e.g., Use only weak foot, Add time pressure"
+								className="font-['Manrope',Helvetica]"
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="safetyNotes"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Safety Notes (comma-separated)
+							</Label>
+							<Input
+								id="safetyNotes"
+								value={newDrill.safetyNotes?.join(", ") || ""}
+								onChange={(e) =>
+									handleArrayInputChange(
+										"safetyNotes",
+										e.target.value
+									)
+								}
+								placeholder="e.g., Ensure adequate space between players, Check for proper footwear"
+								className="font-['Manrope',Helvetica]"
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<div className="flex items-center space-x-2">
+								<input
+									type="checkbox"
+									id="hasScoring"
+									checked={newDrill.hasScoring}
+									onChange={(e) =>
+										handleInputChange(
+											"hasScoring",
+											e.target.checked
+										)
+									}
+									className="rounded"
+								/>
+								<Label
+									htmlFor="hasScoring"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Has Scoring Criteria
+								</Label>
+							</div>
+						</div>
+
+						{newDrill.hasScoring && (
+							<div className="space-y-2">
+								<Label
+									htmlFor="scoringCriteria"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Scoring Criteria (comma-separated)
+								</Label>
+								<Input
+									id="scoringCriteria"
+									value={
+										newDrill.scoringCriteria?.join(", ") ||
+										""
+									}
+									onChange={(e) =>
+										handleArrayInputChange(
+											"scoringCriteria",
+											e.target.value
+										)
+									}
+									placeholder="e.g., Time to complete (40%), Ball control (30%)"
+									className="font-['Manrope',Helvetica]"
+								/>
+							</div>
+						)}
+
+						<DialogFooter className="gap-2 sm:gap-0">
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setIsAddModalOpen(false)}
+								className="font-['Manrope',Helvetica] font-medium"
+							>
+								Cancel
+							</Button>
+							<Button
+								type="submit"
+								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+							>
+								Add Drill
+							</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 
 			{/* Drill Details Modal */}
 			<Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>

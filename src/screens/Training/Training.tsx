@@ -360,7 +360,7 @@ export const Training = ({
 								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
 							>
 								<Plus className="w-4 h-4 mr-2" />
-								Add Training Session
+								Add Training
 							</Button>
 						</div>
 
