@@ -9,7 +9,7 @@ import { Training } from "./screens/Training";
 import { Registration } from "./screens/Registration";
 import { Matches } from "./screens/Matches";
 import { Drills } from "./screens/Drills";
-// import { NotFound } from "./screens/NotFound";
+import { NotFound } from "./screens/NotFound";
 
 const getPageTitle = (pathname: string): string => {
 	if (pathname.startsWith("/training")) return "Training | Project Pro";
@@ -43,7 +43,7 @@ function AppRoutes() {
 				element={<AssessmentDetail />}
 			/>
 			<Route path="/player/:playerId/report" element={<PlayerReport />} />
-			{/* <Route path="*" element={<NotFound />} /> */}
+			<Route path="*" element={<NotFound />} />
 		</Routes>
 	);
 }
