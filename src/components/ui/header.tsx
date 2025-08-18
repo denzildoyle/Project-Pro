@@ -15,21 +15,21 @@ interface HeaderProps {
 export const Header = ({ role }: HeaderProps): JSX.Element => {
 	const coachMenu = [
 		{ label: "Players", href: "#" },
-		{ label: "Training", href: "#" },
+		{ label: "Training", href: "/training" },
 		{ label: "Matches", href: "#" },
 		{ label: "Drills", href: "#" },
 		{ label: "Global Rating", href: "#" },
 	];
 
 	const parentMenu = [
-		{ label: "Training", href: "#" },
+		{ label: "Training", href: "/training" },
 		{ label: "Matches", href: "#" },
 		{ label: "Reports", href: "#" },
 		{ label: "Global Rating", href: "#" },
 	];
 
 	const publicMenu = [
-		{ label: "Training", href: "#" },
+		{ label: "Training", href: "/training" },
 		{ label: "Matches", href: "#" },
 	];
 
