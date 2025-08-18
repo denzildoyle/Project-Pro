@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { AddPlayerModal } from "../../components/AddPlayerModal";
-import { PlayerActionsSection } from "./sections/PlayerActionsSection";
 import { PlayerListHeaderSection } from "./sections/PlayerListHeaderSection";
 import { PlayerTableSection } from "./sections/PlayerTableSection/PlayerTableSection";
 import { Header } from "../../components/ui/header";
@@ -119,7 +118,6 @@ export const StitchDesign = (): JSX.Element => {
 									setIsAddPlayerModalOpen(true)
 								}
 							/>
-							<PlayerActionsSection />
 							<PlayerTableSection players={players} />
 						</div>
 					</div>
