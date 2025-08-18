@@ -2,10 +2,20 @@ import React, { useState } from "react";
 import Calendar from "react-calendar";
 import { Header } from "../../components/ui/header";
 import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../../components/ui/select";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "../../components/ui/dialog";
@@ -16,6 +26,7 @@ import {
 	Users,
 	Calendar as CalendarIcon,
 	Target,
+	Plus,
 } from "lucide-react";
 import "react-calendar/dist/Calendar.css";
 
@@ -165,6 +176,22 @@ export const Training = ({
 	const [selectedTraining, setSelectedTraining] =
 		useState<TrainingSession | null>(null);
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+	const [newTraining, setNewTraining] = useState<Partial<TrainingSession>>({
+		date: "",
+		time: "",
+		location: "",
+		ageGroup: "",
+		coach: "",
+		type: "",
+		duration: "",
+		description: "",
+		equipment: [],
+		objectives: [],
+		plan: "",
+		status: "scheduled",
+	});
+	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	// Get training sessions for a specific date
 	const getTrainingForDate = (date: Date): TrainingSession[] => {
@@ -215,6 +242,83 @@ export const Training = ({
 		return "";
 	};
 
+	const handleAddTraining = () => {
+		setIsAddModalOpen(true);
+	};
+
+	const handleInputChange = (field: keyof TrainingSession, value: string) => {
+		setNewTraining((prev) => ({
+			...prev,
+			[field]: value,
+		}));
+
+		// Clear error when user starts typing
+		if (errors[field]) {
+			setErrors((prev) => ({
+				...prev,
+				[field]: "",
+			}));
+		}
+	};
+
+	const handleArrayInputChange = (
+		field: "equipment" | "objectives",
+		value: string
+	) => {
+		const items = value
+			.split(",")
+			.map((item) => item.trim())
+			.filter((item) => item);
+		setNewTraining((prev) => ({
+			...prev,
+			[field]: items,
+		}));
+	};
+
+	const validateForm = (): boolean => {
+		const newErrors: Record<string, string> = {};
+
+		if (!newTraining.date) newErrors.date = "Date is required";
+		if (!newTraining.time) newErrors.time = "Time is required";
+		if (!newTraining.location) newErrors.location = "Location is required";
+		if (!newTraining.ageGroup) newErrors.ageGroup = "Age group is required";
+		if (!newTraining.coach) newErrors.coach = "Coach is required";
+		if (!newTraining.type) newErrors.type = "Type is required";
+		if (!newTraining.duration) newErrors.duration = "Duration is required";
+		if (!newTraining.description)
+			newErrors.description = "Description is required";
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!validateForm()) return;
+
+		// Here you would typically save to backend
+		console.log("New training session:", newTraining);
+		alert("Training session added successfully!");
+
+		// Reset form
+		setNewTraining({
+			date: "",
+			time: "",
+			location: "",
+			ageGroup: "",
+			coach: "",
+			type: "",
+			duration: "",
+			description: "",
+			equipment: [],
+			objectives: [],
+			plan: "",
+			status: "scheduled",
+		});
+		setErrors({});
+		setIsAddModalOpen(false);
+	};
+
 	const getStatusColor = (status: string) => {
 		switch (status) {
 			case "scheduled":
@@ -251,6 +355,13 @@ export const Training = ({
 									age groups
 								</p>
 							</div>
+							<Button
+								onClick={handleAddTraining}
+								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+							>
+								<Plus className="w-4 h-4 mr-2" />
+								Add Training Session
+							</Button>
 						</div>
 
 						{/* Calendar and Sessions Layout */}
@@ -398,6 +509,353 @@ export const Training = ({
 					</div>
 				</div>
 			</div>
+
+			{/* Add Training Modal */}
+			<Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+				<DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416]">
+							Add New Training Session
+						</DialogTitle>
+						<DialogDescription className="font-['Manrope',Helvetica] text-[#607589]">
+							Create a new training session for your team
+						</DialogDescription>
+					</DialogHeader>
+
+					<form onSubmit={handleSubmit} className="space-y-4">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="date"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Date *
+								</Label>
+								<Input
+									id="date"
+									type="date"
+									value={newTraining.date}
+									onChange={(e) =>
+										handleInputChange(
+											"date",
+											e.target.value
+										)
+									}
+									className={`font-['Manrope',Helvetica] ${
+										errors.date ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.date && (
+									<p className="text-sm text-red-500">
+										{errors.date}
+									</p>
+								)}
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="time"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Time *
+								</Label>
+								<Input
+									id="time"
+									type="time"
+									value={newTraining.time}
+									onChange={(e) =>
+										handleInputChange(
+											"time",
+											e.target.value
+										)
+									}
+									className={`font-['Manrope',Helvetica] ${
+										errors.time ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.time && (
+									<p className="text-sm text-red-500">
+										{errors.time}
+									</p>
+								)}
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="location"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Location *
+							</Label>
+							<Input
+								id="location"
+								value={newTraining.location}
+								onChange={(e) =>
+									handleInputChange(
+										"location",
+										e.target.value
+									)
+								}
+								placeholder="Enter training location"
+								className={`font-['Manrope',Helvetica] ${
+									errors.location ? "border-red-500" : ""
+								}`}
+							/>
+							{errors.location && (
+								<p className="text-sm text-red-500">
+									{errors.location}
+								</p>
+							)}
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="ageGroup"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Age Group *
+								</Label>
+								<Select
+									value={newTraining.ageGroup}
+									onValueChange={(value) =>
+										handleInputChange("ageGroup", value)
+									}
+								>
+									<SelectTrigger
+										className={`font-['Manrope',Helvetica] ${
+											errors.ageGroup
+												? "border-red-500"
+												: ""
+										}`}
+									>
+										<SelectValue placeholder="Select age group" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="U13">U13</SelectItem>
+										<SelectItem value="U15">U15</SelectItem>
+										<SelectItem value="U17">U17</SelectItem>
+									</SelectContent>
+								</Select>
+								{errors.ageGroup && (
+									<p className="text-sm text-red-500">
+										{errors.ageGroup}
+									</p>
+								)}
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="coach"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Coach *
+								</Label>
+								<Input
+									id="coach"
+									value={newTraining.coach}
+									onChange={(e) =>
+										handleInputChange(
+											"coach",
+											e.target.value
+										)
+									}
+									placeholder="Enter coach name"
+									className={`font-['Manrope',Helvetica] ${
+										errors.coach ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.coach && (
+									<p className="text-sm text-red-500">
+										{errors.coach}
+									</p>
+								)}
+							</div>
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label
+									htmlFor="type"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Training Type *
+								</Label>
+								<Select
+									value={newTraining.type}
+									onValueChange={(value) =>
+										handleInputChange("type", value)
+									}
+								>
+									<SelectTrigger
+										className={`font-['Manrope',Helvetica] ${
+											errors.type ? "border-red-500" : ""
+										}`}
+									>
+										<SelectValue placeholder="Select training type" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="Technical Skills">
+											Technical Skills
+										</SelectItem>
+										<SelectItem value="Tactical Training">
+											Tactical Training
+										</SelectItem>
+										<SelectItem value="Physical Conditioning">
+											Physical Conditioning
+										</SelectItem>
+										<SelectItem value="Match Preparation">
+											Match Preparation
+										</SelectItem>
+										<SelectItem value="Recovery Session">
+											Recovery Session
+										</SelectItem>
+									</SelectContent>
+								</Select>
+								{errors.type && (
+									<p className="text-sm text-red-500">
+										{errors.type}
+									</p>
+								)}
+							</div>
+
+							<div className="space-y-2">
+								<Label
+									htmlFor="duration"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Duration *
+								</Label>
+								<Input
+									id="duration"
+									value={newTraining.duration}
+									onChange={(e) =>
+										handleInputChange(
+											"duration",
+											e.target.value
+										)
+									}
+									placeholder="e.g., 90 minutes"
+									className={`font-['Manrope',Helvetica] ${
+										errors.duration ? "border-red-500" : ""
+									}`}
+								/>
+								{errors.duration && (
+									<p className="text-sm text-red-500">
+										{errors.duration}
+									</p>
+								)}
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="description"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Description *
+							</Label>
+							<Input
+								id="description"
+								value={newTraining.description}
+								onChange={(e) =>
+									handleInputChange(
+										"description",
+										e.target.value
+									)
+								}
+								placeholder="Describe the training session"
+								className={`font-['Manrope',Helvetica] ${
+									errors.description ? "border-red-500" : ""
+								}`}
+							/>
+							{errors.description && (
+								<p className="text-sm text-red-500">
+									{errors.description}
+								</p>
+							)}
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="equipment"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Equipment (comma-separated)
+							</Label>
+							<Input
+								id="equipment"
+								value={newTraining.equipment?.join(", ") || ""}
+								onChange={(e) =>
+									handleArrayInputChange(
+										"equipment",
+										e.target.value
+									)
+								}
+								placeholder="e.g., Cones, Training balls, Goals"
+								className="font-['Manrope',Helvetica]"
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="objectives"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Objectives (comma-separated)
+							</Label>
+							<Input
+								id="objectives"
+								value={newTraining.objectives?.join(", ") || ""}
+								onChange={(e) =>
+									handleArrayInputChange(
+										"objectives",
+										e.target.value
+									)
+								}
+								placeholder="e.g., Improve passing, Build fitness"
+								className="font-['Manrope',Helvetica]"
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label
+								htmlFor="plan"
+								className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+							>
+								Training Plan
+							</Label>
+							<Input
+								id="plan"
+								value={newTraining.plan}
+								onChange={(e) =>
+									handleInputChange("plan", e.target.value)
+								}
+								placeholder="Detailed training plan"
+								className="font-['Manrope',Helvetica]"
+							/>
+						</div>
+
+						<DialogFooter className="gap-2 sm:gap-0">
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setIsAddModalOpen(false)}
+								className="font-['Manrope',Helvetica] font-medium"
+							>
+								Cancel
+							</Button>
+							<Button
+								type="submit"
+								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+							>
+								Add Training Session
+							</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 
 			{/* Training Details Modal */}
 			<Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
