@@ -16,7 +16,7 @@ interface LoginFormData {
 	password: string;
 }
 
-export default function ParentLogin() {
+export const Login = () => {
 	const [formData, setFormData] = useState<LoginFormData>({
 		email: "",
 		password: "",
@@ -328,4 +328,4 @@ export default function ParentLogin() {
 			</div>
 		</div>
 	);
-}
+};
