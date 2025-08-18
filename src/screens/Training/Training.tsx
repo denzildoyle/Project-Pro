@@ -27,6 +27,7 @@ import {
 	Calendar as CalendarIcon,
 	Target,
 	Plus,
+	Edit,
 } from "lucide-react";
 import "react-calendar/dist/Calendar.css";
 
@@ -47,7 +48,7 @@ interface TrainingSession {
 }
 
 // Mock training data
-const trainingData: TrainingSession[] = [
+let trainingData: TrainingSession[] = [
 	{
 		id: 1,
 		date: "2025-08-15",
@@ -168,7 +169,7 @@ const trainingData: TrainingSession[] = [
 type CalendarValue = Date | null;
 
 export const Training = ({
-	role = "parent",
+	role = "coach",
 }: {
 	role?: "coach" | "parent" | "public";
 }): JSX.Element => {
@@ -177,6 +178,10 @@ export const Training = ({
 		useState<TrainingSession | null>(null);
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+	const [isEditMode, setIsEditMode] = useState(false);
+	const [editingTrainingId, setEditingTrainingId] = useState<number | null>(
+		null
+	);
 	const [newTraining, setNewTraining] = useState<Partial<TrainingSession>>({
 		date: "",
 		time: "",
@@ -243,6 +248,45 @@ export const Training = ({
 	};
 
 	const handleAddTraining = () => {
+		setIsEditMode(false);
+		setEditingTrainingId(null);
+		setNewTraining({
+			date: "",
+			time: "",
+			location: "",
+			ageGroup: "",
+			coach: "",
+			type: "",
+			duration: "",
+			description: "",
+			equipment: [],
+			objectives: [],
+			plan: "",
+			status: "scheduled",
+		});
+		setErrors({});
+		setIsAddModalOpen(true);
+	};
+
+	const handleEditTraining = (training: TrainingSession) => {
+		setIsEditMode(true);
+		setEditingTrainingId(training.id);
+		setNewTraining({
+			date: training.date,
+			time: training.time,
+			location: training.location,
+			ageGroup: training.ageGroup,
+			coach: training.coach,
+			type: training.type,
+			duration: training.duration,
+			description: training.description,
+			equipment: [...training.equipment],
+			objectives: [...training.objectives],
+			plan: training.plan,
+			status: training.status,
+		});
+		setErrors({});
+		setIsDetailsOpen(false);
 		setIsAddModalOpen(true);
 	};
 
@@ -296,9 +340,28 @@ export const Training = ({
 		e.preventDefault();
 		if (!validateForm()) return;
 
-		// Here you would typically save to backend
-		console.log("New training session:", newTraining);
-		alert("Training session added successfully!");
+		if (isEditMode && editingTrainingId !== null) {
+			// Update existing training session
+			const index = trainingData.findIndex(
+				(t) => t.id === editingTrainingId
+			);
+			if (index !== -1) {
+				trainingData[index] = {
+					...trainingData[index],
+					...(newTraining as TrainingSession),
+				};
+			}
+			alert("Training session updated successfully!");
+		} else {
+			// Add new training session
+			const newId = Math.max(...trainingData.map((t) => t.id)) + 1;
+			const newSession: TrainingSession = {
+				id: newId,
+				...(newTraining as TrainingSession),
+			};
+			trainingData.push(newSession);
+			alert("Training session added successfully!");
+		}
 
 		// Reset form
 		setNewTraining({
@@ -317,6 +380,8 @@ export const Training = ({
 		});
 		setErrors({});
 		setIsAddModalOpen(false);
+		setIsEditMode(false);
+		setEditingTrainingId(null);
 	};
 
 	const getStatusColor = (status: string) => {
@@ -510,15 +575,19 @@ export const Training = ({
 				</div>
 			</div>
 
-			{/* Add Training Modal */}
+			{/* Add/Edit Training Modal */}
 			<Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
 				<DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
 					<DialogHeader>
 						<DialogTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416]">
-							Add New Training Session
+							{isEditMode
+								? "Edit Training Session"
+								: "Add New Training Session"}
 						</DialogTitle>
 						<DialogDescription className="font-['Manrope',Helvetica] text-[#607589]">
-							Create a new training session for your team
+							{isEditMode
+								? "Update the training session details"
+								: "Create a new training session for your team"}
 						</DialogDescription>
 					</DialogHeader>
 
@@ -837,6 +906,44 @@ export const Training = ({
 							/>
 						</div>
 
+						{isEditMode && (
+							<div className="space-y-2">
+								<Label
+									htmlFor="status"
+									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+								>
+									Status
+								</Label>
+								<Select
+									value={newTraining.status}
+									onValueChange={(value) =>
+										handleInputChange(
+											"status",
+											value as
+												| "scheduled"
+												| "completed"
+												| "cancelled"
+										)
+									}
+								>
+									<SelectTrigger className="font-['Manrope',Helvetica]">
+										<SelectValue placeholder="Select status" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="scheduled">
+											Scheduled
+										</SelectItem>
+										<SelectItem value="completed">
+											Completed
+										</SelectItem>
+										<SelectItem value="cancelled">
+											Cancelled
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+						)}
+
 						<DialogFooter className="gap-2 sm:gap-0">
 							<Button
 								type="button"
@@ -850,7 +957,9 @@ export const Training = ({
 								type="submit"
 								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
 							>
-								Add Training Session
+								{isEditMode
+									? "Update Training Session"
+									: "Add Training Session"}
 							</Button>
 						</DialogFooter>
 					</form>
@@ -1009,11 +1118,20 @@ export const Training = ({
 								>
 									Close
 								</Button>
-								{selectedTraining.status === "scheduled" && (
-									<Button className="font-['Manrope',Helvetica] bg-[#111416] hover:bg-[#2a2d31]">
-										Edit Session
-									</Button>
-								)}
+								{selectedTraining.status === "scheduled" &&
+									role === "coach" && (
+										<Button
+											className="font-['Manrope',Helvetica] bg-[#111416] hover:bg-[#2a2d31] text-white"
+											onClick={() =>
+												handleEditTraining(
+													selectedTraining
+												)
+											}
+										>
+											<Edit className="w-4 h-4 mr-2" />
+											Edit Session
+										</Button>
+									)}
 							</div>
 						</>
 					)}

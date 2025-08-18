@@ -670,7 +670,7 @@ export const Drills = (): JSX.Element => {
 									<Card
 										key={drill.id}
 										onClick={() => handleDrillClick(drill)}
-										className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border border-[#dbe0e5]"
+										className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border border-[#dbe0e5] bg-white"
 									>
 										<CardHeader className="pb-3">
 											<div className="flex justify-between items-start mb-2">

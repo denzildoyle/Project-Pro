@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import { Header } from "../../components/ui/header";
 import { Button } from "../../components/ui/button";
@@ -177,11 +177,14 @@ const matchData: Match[] = [
 
 type CalendarValue = Date | null;
 
+const OPENWEATHER_API_KEY = "21d8a25c33465b9cc8f91af9a72c75a8";
+
 export const Matches = ({
-	role = "parent",
+	role = "coach",
 }: {
 	role?: "coach" | "parent" | "public";
 }): JSX.Element => {
+	const [weather, setWeather] = useState<string | null>(null);
 	const [selectedDate, setSelectedDate] = useState<CalendarValue>(new Date());
 	const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -227,6 +230,38 @@ export const Matches = ({
 		});
 		setErrors({});
 	};
+
+	// TO DO: This should be updated daily and sent to the db vs fetching on demand
+	useEffect(() => {
+		const fetchWeather = async () => {
+			if (!selectedMatch) return;
+			const city = selectedMatch.venue.split(" ")[0]; // crude city extraction
+			const date = selectedMatch.date;
+
+			// OpenWeatherMap only provides forecast for up to 5 days ahead for free accounts.
+			// We'll fetch current weather for demo purposes.
+			const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
+				city
+			)}&appid=${OPENWEATHER_API_KEY}&units=metric`;
+
+			try {
+				const res = await fetch(url);
+				const data = await res.json();
+				if (data.weather && data.weather.length > 0) {
+					setWeather(`${data.weather[0].main}, ${data.main.temp}°C`);
+				} else {
+					setWeather("Weather data not available");
+				}
+			} catch {
+				setWeather("Weather data not available");
+			}
+		};
+
+		if (selectedMatch) {
+			setWeather(null);
+			fetchWeather();
+		}
+	}, [selectedMatch]);
 
 	// Get matches for a specific date
 	const getMatchesForDate = (date: Date): Match[] => {
@@ -991,13 +1026,15 @@ export const Matches = ({
 							>
 								Cancel
 							</Button>
-							<Button
-								type="button"
-								onClick={handleSubmit}
-								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
-							>
-								{isEditMode ? "Update Match" : "Add Match"}
-							</Button>
+							{role === "coach" && (
+								<Button
+									type="button"
+									onClick={handleSubmit}
+									className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+								>
+									{isEditMode ? "Update Match" : "Add Match"}
+								</Button>
+							)}
 						</DialogFooter>
 					</div>
 				</DialogContent>
@@ -1091,6 +1128,16 @@ export const Matches = ({
 												{selectedMatch.status}
 											</Badge>
 										</div>
+										<div className="text-sm">
+											<span className="font-medium font-['Manrope',Helvetica]">
+												Weather:
+											</span>
+											<span className="text-[#60758a] ml-2 font-['Manrope',Helvetica]">
+												{weather
+													? weather
+													: "Loading..."}
+											</span>
+										</div>
 									</div>
 								</div>
 
@@ -1123,7 +1170,7 @@ export const Matches = ({
 									<h4 className="font-semibold text-[#111418] mb-2 font-['Manrope',Helvetica]">
 										Team Information
 									</h4>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-blue-50 rounded-lg">
+									<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-3 bg-blue-50 rounded-lg">
 										<div className="text-sm">
 											<span className="font-medium font-['Manrope',Helvetica]">
 												Formation:
@@ -1180,14 +1227,15 @@ export const Matches = ({
 								>
 									Close
 								</Button>
-								{selectedMatch.status === "scheduled" && (
-									<Button
-										onClick={handleEditMatch}
-										className="font-['Manrope',Helvetica] bg-[#111416] hover:bg-[#2a2d31]"
-									>
-										Edit Match
-									</Button>
-								)}
+								{role === "coach" &&
+									selectedMatch.status === "scheduled" && (
+										<Button
+											onClick={handleEditMatch}
+											className="font-['Manrope',Helvetica] bg-[#111416] hover:bg-[#2a2d31]"
+										>
+											Edit Match
+										</Button>
+									)}
 							</div>
 						</>
 					)}
