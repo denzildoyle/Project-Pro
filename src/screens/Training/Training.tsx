@@ -31,6 +31,7 @@ interface TrainingSession {
 	description: string;
 	equipment: string[];
 	objectives: string[];
+	plan: string; //TO DO: link to google drive
 	status: "scheduled" | "completed" | "cancelled";
 }
 
@@ -53,6 +54,7 @@ const trainingData: TrainingSession[] = [
 			"Enhance passing accuracy over various distances",
 			"Develop ball control in tight spaces",
 		],
+		plan: "Players will engage in a series of drills focusing on the key objectives, followed by small-sided games to apply their skills in a match-like environment.",
 		status: "scheduled",
 	},
 	{
@@ -77,6 +79,7 @@ const trainingData: TrainingSession[] = [
 			"Understand pressing triggers",
 			"Improve transition from defense to attack",
 		],
+		plan: "The session will start with a video analysis of previous matches, followed by tactical drills focusing on the objectives. The session will conclude with a controlled scrimmage to apply learned tactics.",
 		status: "scheduled",
 	},
 	{
@@ -101,6 +104,7 @@ const trainingData: TrainingSession[] = [
 			"Build cardiovascular endurance",
 			"Introduce proper movement patterns",
 		],
+		plan: "The session will include a variety of fun games and activities designed to improve fitness while keeping players engaged.",
 		status: "scheduled",
 	},
 	{
@@ -125,6 +129,7 @@ const trainingData: TrainingSession[] = [
 			"Review opponent analysis",
 			"Build match confidence",
 		],
+		plan: "The session will focus on refining set-piece routines and reviewing opponent analysis. A light scrimmage will be included to build team cohesion.",
 		status: "scheduled",
 	},
 	{
@@ -144,13 +149,18 @@ const trainingData: TrainingSession[] = [
 			"Maintain ball touch",
 			"Prevent injury through mobility work",
 		],
+		plan: "The session will include a series of stretching and mobility exercises, followed by light ball work to maintain touch without exerting too much energy.",
 		status: "completed",
 	},
 ];
 
 type CalendarValue = Date | null;
 
-export const Training = (): JSX.Element => {
+export const Training = ({
+	role = "parent",
+}: {
+	role?: "coach" | "parent" | "public";
+}): JSX.Element => {
 	const [selectedDate, setSelectedDate] = useState<CalendarValue>(new Date());
 	const [selectedTraining, setSelectedTraining] =
 		useState<TrainingSession | null>(null);
@@ -479,6 +489,7 @@ export const Training = (): JSX.Element => {
 									<h4 className="font-semibold text-[#111418] mb-2 font-['Manrope',Helvetica]">
 										Training Objectives
 									</h4>
+
 									<ul className="space-y-1">
 										{selectedTraining.objectives.map(
 											(objective, index) => (
@@ -496,25 +507,40 @@ export const Training = (): JSX.Element => {
 									</ul>
 								</div>
 
-								{/* Equipment */}
-								<div>
-									<h4 className="font-semibold text-[#111418] mb-2 font-['Manrope',Helvetica]">
-										Required Equipment
-									</h4>
-									<div className="flex flex-wrap gap-2">
-										{selectedTraining.equipment.map(
-											(item, index) => (
-												<Badge
-													key={index}
-													variant="outline"
-													className="text-xs font-['Manrope',Helvetica]"
-												>
-													{item}
-												</Badge>
-											)
-										)}
+								{/* Plan */}
+								{role === "coach" && (
+									<div>
+										<h4 className="font-semibold text-[#111418] mb-2 font-['Manrope',Helvetica]">
+											Training Plan
+										</h4>
+										<p className="text-[#60758a] text-sm flex items-start gap-2 font-['Manrope',Helvetica]">
+											{selectedTraining.plan}
+										</p>
 									</div>
-								</div>
+								)}
+
+								{/* Equipment */}
+
+								{role === "coach" && (
+									<div>
+										<h4 className="font-semibold text-[#111418] mb-2 font-['Manrope',Helvetica]">
+											Required Equipment
+										</h4>
+										<div className="flex flex-wrap gap-2">
+											{selectedTraining.equipment.map(
+												(item, index) => (
+													<Badge
+														key={index}
+														variant="outline"
+														className="text-xs font-['Manrope',Helvetica]"
+													>
+														{item}
+													</Badge>
+												)
+											)}
+										</div>
+									</div>
+								)}
 							</div>
 
 							<div className="flex justify-end gap-2 pt-4">
