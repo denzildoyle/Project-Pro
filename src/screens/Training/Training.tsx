@@ -28,8 +28,6 @@ interface TrainingSession {
 	coach: string;
 	type: string;
 	duration: string;
-	maxParticipants: number;
-	currentParticipants: number;
 	description: string;
 	equipment: string[];
 	objectives: string[];
@@ -47,8 +45,6 @@ const trainingData: TrainingSession[] = [
 		coach: "Coach Martinez",
 		type: "Technical Skills",
 		duration: "90 minutes",
-		maxParticipants: 20,
-		currentParticipants: 18,
 		description:
 			"Focus on ball control, passing accuracy, and first touch techniques. Players will work on individual skills before progressing to small-sided games.",
 		equipment: ["Cones", "Training balls", "Agility ladders", "Goals"],
@@ -68,8 +64,6 @@ const trainingData: TrainingSession[] = [
 		coach: "Coach Thompson",
 		type: "Tactical Training",
 		duration: "120 minutes",
-		maxParticipants: 22,
-		currentParticipants: 20,
 		description:
 			"Advanced tactical session focusing on formation play, pressing triggers, and transition phases. Video analysis will be included.",
 		equipment: [
@@ -94,8 +88,6 @@ const trainingData: TrainingSession[] = [
 		coach: "Coach Williams",
 		type: "Physical Conditioning",
 		duration: "75 minutes",
-		maxParticipants: 16,
-		currentParticipants: 14,
 		description:
 			"Age-appropriate fitness session combining fun activities with conditioning exercises. Focus on agility, coordination, and basic strength.",
 		equipment: [
@@ -120,8 +112,6 @@ const trainingData: TrainingSession[] = [
 		coach: "Coach Davis",
 		type: "Match Preparation",
 		duration: "105 minutes",
-		maxParticipants: 18,
-		currentParticipants: 17,
 		description:
 			"Pre-match training session with set-piece practice, tactical review, and light scrimmage. Focus on match readiness and team cohesion.",
 		equipment: [
@@ -146,8 +136,6 @@ const trainingData: TrainingSession[] = [
 		coach: "Coach Rodriguez",
 		type: "Recovery Session",
 		duration: "60 minutes",
-		maxParticipants: 25,
-		currentParticipants: 22,
 		description:
 			"Light recovery session focusing on stretching, mobility work, and low-intensity ball work. Perfect for post-match recovery.",
 		equipment: ["Yoga mats", "Foam rollers", "Light training balls"],
@@ -391,17 +379,6 @@ export const Training = (): JSX.Element => {
 														<MapPin className="w-4 h-4" />
 														{session.location}
 													</div>
-													<div className="flex items-center gap-2">
-														<Users className="w-4 h-4" />
-														{
-															session.currentParticipants
-														}
-														/
-														{
-															session.maxParticipants
-														}{" "}
-														players
-													</div>
 												</div>
 											</div>
 										))}
@@ -469,20 +446,6 @@ export const Training = (): JSX.Element => {
 											</span>
 											<span className="text-[#60758a] ml-2 font-['Manrope',Helvetica]">
 												{selectedTraining.coach}
-											</span>
-										</div>
-										<div className="text-sm">
-											<span className="font-medium font-['Manrope',Helvetica]">
-												Participants:
-											</span>
-											<span className="text-[#60758a] ml-2 font-['Manrope',Helvetica]">
-												{
-													selectedTraining.currentParticipants
-												}
-												/
-												{
-													selectedTraining.maxParticipants
-												}
 											</span>
 										</div>
 										<div className="text-sm">
