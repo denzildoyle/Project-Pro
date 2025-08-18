@@ -7,6 +7,7 @@ import { Training } from "./screens/Training";
 import { Registration } from "./screens/Registration";
 import { Matches } from "./screens/Matches";
 import { Drills } from "./screens/Drills";
+// import { NotFound } from "./screens/NotFound";
 
 export const App = (): JSX.Element => {
 	return (
@@ -30,6 +31,7 @@ export const App = (): JSX.Element => {
 					element={<PlayerReport />}
 				/>
 			</Routes>
+			{/* <Route path="*" element={<NotFound />} /> */}
 		</Router>
 	);
 };
