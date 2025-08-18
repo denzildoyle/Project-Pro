@@ -127,20 +127,13 @@ export const Login = () => {
 							Project Pro
 						</h1>
 					</div>
-					<h2 className="text-3xl font-bold text-[#111418] font-['Manrope',Helvetica]">
-						Welcome Back
-					</h2>
-					<p className="mt-2 text-sm text-[#60758a] font-['Manrope',Helvetica]">
-						Sign in to your parent account to manage your player's
-						journey
-					</p>
 				</div>
 
 				{/* Login Form */}
 				<Card className="shadow-lg">
 					<CardHeader>
 						<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] text-center">
-							Parent Sign In
+							Sign In
 						</CardTitle>
 						<CardDescription className="font-['Manrope',Helvetica] text-[#607589] text-center">
 							Enter your credentials to access your account
