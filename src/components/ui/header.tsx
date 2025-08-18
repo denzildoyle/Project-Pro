@@ -16,21 +16,21 @@ export const Header = ({ role }: HeaderProps): JSX.Element => {
 	const coachMenu = [
 		{ label: "Players", href: "#" },
 		{ label: "Training", href: "/training" },
-		{ label: "Matches", href: "#" },
-		{ label: "Drills", href: "#" },
+		{ label: "Matches", href: "/matches" },
+		{ label: "Drills", href: "/drills" },
 		{ label: "Global Rating", href: "#" },
 	];
 
 	const parentMenu = [
 		{ label: "Training", href: "/training" },
-		{ label: "Matches", href: "#" },
+		{ label: "Matches", href: "/matches" },
 		{ label: "Reports", href: "#" },
 		{ label: "Global Rating", href: "#" },
 	];
 
 	const publicMenu = [
 		{ label: "Training", href: "/training" },
-		{ label: "Matches", href: "#" },
+		{ label: "Matches", href: "/matches" },
 	];
 
 	const menu =
