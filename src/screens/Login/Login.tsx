@@ -130,7 +130,7 @@ export const Login = () => {
 				</div>
 
 				{/* Login Form */}
-				<Card className="shadow-lg">
+				<Card className="shadow-lg bg-white">
 					<CardHeader>
 						<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] text-center">
 							Sign In
