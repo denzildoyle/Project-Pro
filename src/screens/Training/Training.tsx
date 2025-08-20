@@ -31,6 +31,7 @@ import {
 	Filter,
 } from "lucide-react";
 import "react-calendar/dist/Calendar.css";
+import "./Training.css";
 
 interface TrainingSession {
 	id: number;
@@ -545,23 +546,16 @@ export const Training = ({
 						{/* Active Filter Display */}
 						{ageFilter !== "all" && (
 							<div className="px-4 pb-2">
-								<div className="flex items-center gap-2">
-									<span className="text-sm text-[#60758a] font-['Manrope',Helvetica]">
-										Showing sessions for:
-									</span>
-									<Badge
-										variant="outline"
-										className="font-['Manrope',Helvetica]"
-									>
-										{ageFilter}
-									</Badge>
+								<div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-['Manrope',Helvetica]">
+									<Filter className="w-3 h-3" />
+									Showing sessions for {ageFilter}
 									<Button
 										variant="ghost"
 										size="sm"
 										onClick={() =>
 											handleAgeFilterChange("all")
 										}
-										className="text-xs text-[#60758a] hover:text-[#111418] font-['Manrope',Helvetica]"
+										className="h-auto p-0 text-blue-700 hover:text-blue-900 font-['Manrope',Helvetica] text-xs"
 									>
 										Clear filter
 									</Button>
@@ -1297,67 +1291,6 @@ export const Training = ({
 					)}
 				</DialogContent>
 			</Dialog>
-
-			<style jsx>{`
-				.training-calendar .react-calendar {
-					width: 100%;
-					background: white;
-					border: none;
-					font-family: "Manrope", Helvetica, sans-serif;
-				}
-
-				.training-calendar .react-calendar__tile {
-					max-width: 100%;
-					padding: 10px 6px;
-					background: none;
-					text-align: center;
-					line-height: 16px;
-					font-size: 0.875rem;
-					border: none;
-					position: relative;
-				}
-
-				.training-calendar .react-calendar__tile:enabled:hover,
-				.training-calendar .react-calendar__tile:enabled:focus {
-					background-color: #f3f4f6;
-				}
-
-				.training-calendar .react-calendar__tile--now {
-					background: #e5e7eb;
-				}
-
-				.training-calendar .react-calendar__tile--active {
-					background: #3b82f6 !important;
-					color: white;
-				}
-
-				.training-calendar .react-calendar__tile.has-training {
-					background-color: #dbeafe;
-					font-weight: 600;
-				}
-
-				.training-calendar .react-calendar__tile.has-training:hover {
-					background-color: #bfdbfe;
-				}
-
-				.training-calendar .react-calendar__navigation button {
-					color: #111418;
-					min-width: 44px;
-					background: none;
-					font-size: 16px;
-					margin-top: 8px;
-					border: none;
-				}
-
-				.training-calendar
-					.react-calendar__navigation
-					button:enabled:hover,
-				.training-calendar
-					.react-calendar__navigation
-					button:enabled:focus {
-					background-color: #f3f4f6;
-				}
-			`}</style>
 		</div>
 	);
 };

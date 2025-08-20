@@ -28,8 +28,10 @@ import {
 	Trophy,
 	Target,
 	Plus,
+	Filter,
 } from "lucide-react";
 import "react-calendar/dist/Calendar.css";
+import "./Matches.css";
 
 interface Match {
 	id: number;
@@ -173,6 +175,29 @@ const matchData: Match[] = [
 		},
 		attendance: 150,
 	},
+	{
+		id: 6,
+		date: "2025-01-20",
+		time: "10:00",
+		homeTeam: "Project Pro U13",
+		awayTeam: "Eagles FC U13",
+		venue: "Eagles FC Ground",
+		ageGroup: "U13",
+		competition: "Development Cup",
+		matchType: "Cup Match",
+		status: "scheduled",
+		description:
+			"Cup match focusing on development and giving young players competitive experience.",
+		objectives: [
+			"Encourage creative play",
+			"Build confidence on the ball",
+			"Focus on team communication",
+		],
+		teamSheet: {
+			formation: "3-4-3",
+			captain: "Michael Torres",
+		},
+	},
 ];
 
 type CalendarValue = Date | null;
@@ -190,6 +215,7 @@ export const Matches = ({
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 	const [isMatchFormOpen, setIsMatchFormOpen] = useState(false);
 	const [editingMatch, setEditingMatch] = useState<Match | null>(null);
+	const [ageFilter, handleAgeFilterChange] = useState<string>("all");
 	const [formData, setFormData] = useState<Partial<Match>>({
 		date: "",
 		time: "",
@@ -208,6 +234,17 @@ export const Matches = ({
 		},
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
+
+	// Get unique age groups for filter
+	const ageGroups = Array.from(
+		new Set(matchData.map((match) => match.ageGroup))
+	).sort();
+
+	// Filter matches based on selected age group
+	const filteredMatches =
+		ageFilter === "all"
+			? matchData
+			: matchData.filter((match) => match.ageGroup === ageFilter);
 
 	// Reset form data to empty values
 	const resetFormData = () => {
@@ -269,16 +306,16 @@ export const Matches = ({
 		}
 	}, [selectedMatch]);
 
-	// Get matches for a specific date
+	// Get matches for a specific date (filtered by age group)
 	const getMatchesForDate = (date: Date): Match[] => {
 		const dateString = date.toISOString().split("T")[0];
-		return matchData.filter((match) => match.date === dateString);
+		return filteredMatches.filter((match) => match.date === dateString);
 	};
 
-	// Check if a date has matches
+	// Check if a date has matches (filtered by age group)
 	const hasMatches = (date: Date): boolean => {
 		const dateString = date.toISOString().split("T")[0];
-		return matchData.some((match) => match.date === dateString);
+		return filteredMatches.some((match) => match.date === dateString);
 	};
 
 	// Handle date click
@@ -473,14 +510,62 @@ export const Matches = ({
 									groups and competitions
 								</p>
 							</div>
-							<Button
-								onClick={handleAddMatch}
-								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
-							>
-								<Plus className="w-4 h-4 mr-2" />
-								Add Match
-							</Button>
+							<div className="flex gap-3 items-center">
+								{/* Age Filter */}
+								<div className="flex items-center gap-2">
+									<Filter className="w-4 h-4 text-[#60758a]" />
+									<Select
+										value={ageFilter}
+										onValueChange={handleAgeFilterChange}
+									>
+										<SelectTrigger className="w-32 font-['Manrope',Helvetica] text-sm">
+											<SelectValue placeholder="Age Group" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="all">
+												All Ages
+											</SelectItem>
+											{ageGroups.map((ageGroup) => (
+												<SelectItem
+													key={ageGroup}
+													value={ageGroup}
+												>
+													{ageGroup}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</div>
+
+								<Button
+									onClick={handleAddMatch}
+									className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+								>
+									<Plus className="w-4 h-4 mr-2" />
+									Add Match
+								</Button>
+							</div>
 						</div>
+
+						{/* Age Filter Status */}
+						{ageFilter !== "all" && (
+							<div className="px-4 pb-2">
+								<div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-['Manrope',Helvetica]">
+									<Filter className="w-3 h-3" />
+									Showing matches for {ageFilter}
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() =>
+											handleAgeFilterChange("all")
+										}
+										className="h-auto p-0 text-blue-700 hover:text-blue-900 font-['Manrope',Helvetica] text-xs"
+									>
+										Clear filter
+									</Button>
+								</div>
+							</div>
+						)}
 
 						{/* Calendar and Matches Layout */}
 						<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
@@ -489,6 +574,11 @@ export const Matches = ({
 								<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
 									<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
 										Match Calendar
+										{ageFilter !== "all" && (
+											<span className="text-sm font-normal text-[#60758a] ml-2">
+												({ageFilter} matches)
+											</span>
+										)}
 									</h3>
 									<div className="match-calendar">
 										<Calendar
@@ -596,7 +686,9 @@ export const Matches = ({
 										</div>
 									) : (
 										<p className="text-[#60758a] text-sm font-['Manrope',Helvetica]">
-											No matches scheduled for this date.
+											{ageFilter !== "all"
+												? `No ${ageFilter} matches scheduled for this date.`
+												: "No matches scheduled for this date."}
 										</p>
 									)}
 								</div>
@@ -606,11 +698,32 @@ export const Matches = ({
 						{/* Upcoming Matches */}
 						<div className="p-4">
 							<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
-								<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
-									Upcoming Matches
-								</h3>
+								<div className="flex justify-between items-center mb-4">
+									<h3 className="text-lg font-semibold text-[#111418] font-['Manrope',Helvetica]">
+										Upcoming Matches
+										{ageFilter !== "all" && (
+											<span className="text-sm font-normal text-[#60758a] ml-2">
+												({ageFilter})
+											</span>
+										)}
+									</h3>
+									{ageFilter !== "all" && (
+										<Badge
+											variant="outline"
+											className="text-xs"
+										>
+											{
+												filteredMatches.filter(
+													(m) =>
+														m.status === "scheduled"
+												).length
+											}{" "}
+											matches
+										</Badge>
+									)}
+								</div>
 								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-									{matchData
+									{filteredMatches
 										.filter(
 											(match) =>
 												match.status === "scheduled"
@@ -659,6 +772,15 @@ export const Matches = ({
 											</div>
 										))}
 								</div>
+								{filteredMatches.filter(
+									(m) => m.status === "scheduled"
+								).length === 0 && (
+									<p className="text-[#60758a] text-sm font-['Manrope',Helvetica] text-center py-8">
+										{ageFilter !== "all"
+											? `No upcoming ${ageFilter} matches scheduled.`
+											: "No upcoming matches scheduled."}
+									</p>
+								)}
 							</div>
 						</div>
 					</div>
@@ -1271,67 +1393,6 @@ export const Matches = ({
 					)}
 				</DialogContent>
 			</Dialog>
-
-			<style jsx>{`
-				.match-calendar .react-calendar {
-					width: 100%;
-					background: white;
-					border: none;
-					font-family: "Manrope", Helvetica, sans-serif;
-				}
-
-				.match-calendar .react-calendar__tile {
-					max-width: 100%;
-					padding: 10px 6px;
-					background: none;
-					text-align: center;
-					line-height: 16px;
-					font-size: 0.875rem;
-					border: none;
-					position: relative;
-				}
-
-				.match-calendar .react-calendar__tile:enabled:hover,
-				.match-calendar .react-calendar__tile:enabled:focus {
-					background-color: #f3f4f6;
-				}
-
-				.match-calendar .react-calendar__tile--now {
-					background: #e5e7eb;
-				}
-
-				.match-calendar .react-calendar__tile--active {
-					background: #3b82f6 !important;
-					color: white;
-				}
-
-				.match-calendar .react-calendar__tile.has-matches {
-					background-color: #dbeafe;
-					font-weight: 600;
-				}
-
-				.match-calendar .react-calendar__tile.has-matches:hover {
-					background-color: #bfdbfe;
-				}
-
-				.match-calendar .react-calendar__navigation button {
-					color: #111418;
-					min-width: 44px;
-					background: none;
-					font-size: 16px;
-					margin-top: 8px;
-					border: none;
-				}
-
-				.match-calendar
-					.react-calendar__navigation
-					button:enabled:hover,
-				.match-calendar
-					.react-calendar__navigation
-					button:enabled:focus {
-					background-color: #f3f4f6;
-				}
-			`}</style>
 		</div>
 	);
 };
