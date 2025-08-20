@@ -28,6 +28,7 @@ import {
 	Target,
 	Plus,
 	Edit,
+	Filter,
 } from "lucide-react";
 import "react-calendar/dist/Calendar.css";
 
@@ -164,6 +165,51 @@ let trainingData: TrainingSession[] = [
 		plan: "The session will include a series of stretching and mobility exercises, followed by light ball work to maintain touch without exerting too much energy.",
 		status: "completed",
 	},
+	{
+		id: 6,
+		date: "2025-08-19",
+		time: "14:00",
+		location: "Training Ground A",
+		ageGroup: "U13",
+		coach: "Coach Williams",
+		type: "Technical Skills",
+		duration: "75 minutes",
+		description:
+			"Basic ball handling and passing skills for young players. Emphasis on fun while learning fundamental techniques.",
+		equipment: ["Small goals", "Training balls", "Cones", "Markers"],
+		objectives: [
+			"Master basic ball control",
+			"Learn proper passing technique",
+			"Build confidence with the ball",
+		],
+		plan: "Fun-focused session with games and activities designed to teach fundamental skills while keeping young players engaged.",
+		status: "scheduled",
+	},
+	{
+		id: 7,
+		date: "2025-08-21",
+		time: "17:30",
+		location: "Indoor Training Facility",
+		ageGroup: "U17",
+		coach: "Coach Thompson",
+		type: "Match Preparation",
+		duration: "110 minutes",
+		description:
+			"Final preparation before weekend match. Focus on set pieces, team shape, and mental preparation.",
+		equipment: [
+			"Full training kit",
+			"Video equipment",
+			"Tactical boards",
+			"Match balls",
+		],
+		objectives: [
+			"Finalize set piece routines",
+			"Review opponent weaknesses",
+			"Build team confidence",
+		],
+		plan: "Comprehensive preparation session including tactical review, set piece practice, and team bonding activities.",
+		status: "scheduled",
+	},
 ];
 
 type CalendarValue = Date | null;
@@ -182,6 +228,7 @@ export const Training = ({
 	const [editingTrainingId, setEditingTrainingId] = useState<number | null>(
 		null
 	);
+	const [ageFilter, setAgeFilter] = useState<string>("all");
 	const [newTraining, setNewTraining] = useState<Partial<TrainingSession>>({
 		date: "",
 		time: "",
@@ -198,16 +245,34 @@ export const Training = ({
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
-	// Get training sessions for a specific date
-	const getTrainingForDate = (date: Date): TrainingSession[] => {
-		const dateString = date.toISOString().split("T")[0];
-		return trainingData.filter((training) => training.date === dateString);
+	// Filter training data based on age group
+	const getFilteredTrainingData = (): TrainingSession[] => {
+		if (ageFilter === "all") {
+			return trainingData;
+		}
+		return trainingData.filter((session) => session.ageGroup === ageFilter);
 	};
 
-	// Check if a date has training sessions
+	// Get training sessions for a specific date (filtered by age group)
+	const getTrainingForDate = (date: Date): TrainingSession[] => {
+		const dateString = date.toISOString().split("T")[0];
+		const filteredData = getFilteredTrainingData();
+		return filteredData.filter((training) => training.date === dateString);
+	};
+
+	// Check if a date has training sessions (considering age filter)
 	const hasTraining = (date: Date): boolean => {
 		const dateString = date.toISOString().split("T")[0];
-		return trainingData.some((training) => training.date === dateString);
+		const filteredData = getFilteredTrainingData();
+		return filteredData.some((training) => training.date === dateString);
+	};
+
+	// Get unique age groups from training data
+	const getUniqueAgeGroups = (): string[] => {
+		const ageGroups = [
+			...new Set(trainingData.map((session) => session.ageGroup)),
+		];
+		return ageGroups.sort();
 	};
 
 	// Handle date click
@@ -226,6 +291,14 @@ export const Training = ({
 		setIsDetailsOpen(true);
 	};
 
+	// Handle age filter change
+	const handleAgeFilterChange = (value: string) => {
+		setAgeFilter(value);
+		// Reset selected date and close any open modals when filter changes
+		setSelectedDate(new Date());
+		setIsDetailsOpen(false);
+	};
+
 	// Custom tile content for calendar
 	const tileContent = ({ date }: { date: Date }) => {
 		if (hasTraining(date)) {
@@ -233,6 +306,9 @@ export const Training = ({
 			return (
 				<div className="flex justify-center mt-1">
 					<div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+					{sessions.length > 1 && (
+						<div className="w-1 h-1 bg-blue-300 rounded-full ml-1"></div>
+					)}
 				</div>
 			);
 		}
@@ -254,7 +330,7 @@ export const Training = ({
 			date: "",
 			time: "",
 			location: "",
-			ageGroup: "",
+			ageGroup: ageFilter !== "all" ? ageFilter : "",
 			coach: "",
 			type: "",
 			duration: "",
@@ -401,6 +477,10 @@ export const Training = ({
 		? getTrainingForDate(selectedDate)
 		: [];
 
+	const filteredUpcomingSessions = getFilteredTrainingData()
+		.filter((session) => session.status === "scheduled")
+		.slice(0, 6);
+
 	return (
 		<div className="relative flex size-full min-h-screen flex-col bg-slate-50 overflow-x-hidden font-['Manrope','Noto_Sans',sans-serif]">
 			<div className="layout-container flex h-full grow flex-col">
@@ -420,14 +500,74 @@ export const Training = ({
 									age groups
 								</p>
 							</div>
-							<Button
-								onClick={handleAddTraining}
-								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
-							>
-								<Plus className="w-4 h-4 mr-2" />
-								Add Training
-							</Button>
+
+							<div className="flex gap-3 items-center">
+								{/* Age Group Filter */}
+								<div className="flex items-center gap-2">
+									<Filter className="w-4 h-4 text-[#60758a]" />
+									<Select
+										value={ageFilter}
+										onValueChange={handleAgeFilterChange}
+									>
+										<SelectTrigger className="w-[140px] font-['Manrope',Helvetica] border-[#dbe0e5]">
+											<SelectValue placeholder="All Ages" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="all">
+												All Ages
+											</SelectItem>
+											{getUniqueAgeGroups().map(
+												(ageGroup) => (
+													<SelectItem
+														key={ageGroup}
+														value={ageGroup}
+													>
+														{ageGroup}
+													</SelectItem>
+												)
+											)}
+										</SelectContent>
+									</Select>
+								</div>
+
+								{role === "coach" && (
+									<Button
+										onClick={handleAddTraining}
+										className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+									>
+										<Plus className="w-4 h-4 mr-2" />
+										Add Training
+									</Button>
+								)}
+							</div>
 						</div>
+
+						{/* Active Filter Display */}
+						{ageFilter !== "all" && (
+							<div className="px-4 pb-2">
+								<div className="flex items-center gap-2">
+									<span className="text-sm text-[#60758a] font-['Manrope',Helvetica]">
+										Showing sessions for:
+									</span>
+									<Badge
+										variant="outline"
+										className="font-['Manrope',Helvetica]"
+									>
+										{ageFilter}
+									</Badge>
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() =>
+											handleAgeFilterChange("all")
+										}
+										className="text-xs text-[#60758a] hover:text-[#111418] font-['Manrope',Helvetica]"
+									>
+										Clear filter
+									</Button>
+								</div>
+							</div>
+						)}
 
 						{/* Calendar and Sessions Layout */}
 						<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
@@ -436,6 +576,11 @@ export const Training = ({
 								<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
 									<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
 										Training Calendar
+										{ageFilter !== "all" && (
+											<span className="text-sm font-normal text-[#60758a] ml-2">
+												({ageFilter} sessions)
+											</span>
+										)}
 									</h3>
 									<div className="training-calendar">
 										<Calendar
@@ -509,8 +654,12 @@ export const Training = ({
 										</div>
 									) : (
 										<p className="text-[#60758a] text-sm font-['Manrope',Helvetica]">
-											No training sessions scheduled for
-											this date.
+											No{" "}
+											{ageFilter !== "all"
+												? `${ageFilter} `
+												: ""}
+											training sessions scheduled for this
+											date.
 										</p>
 									)}
 								</div>
@@ -521,54 +670,65 @@ export const Training = ({
 						<div className="p-4">
 							<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
 								<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
-									Upcoming Training Sessions
+									{ageFilter === "all"
+										? "Training Sessions for Upcoming Week"
+										: `Upcoming ${ageFilter} Training Sessions`}
 								</h3>
-								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-									{trainingData
-										.filter(
-											(session) =>
-												session.status === "scheduled"
-										)
-										.slice(0, 6)
-										.map((session) => (
-											<div
-												key={session.id}
-												onClick={() =>
-													handleTrainingClick(session)
-												}
-												className="p-4 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-											>
-												<div className="flex justify-between items-start mb-3">
-													<h4 className="font-medium text-[#111418] font-['Manrope',Helvetica]">
-														{session.type}
-													</h4>
-													<Badge
-														variant="secondary"
-														className="text-xs"
-													>
-														{session.ageGroup}
-													</Badge>
+
+								{filteredUpcomingSessions.length > 0 ? (
+									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+										{filteredUpcomingSessions.map(
+											(session) => (
+												<div
+													key={session.id}
+													onClick={() =>
+														handleTrainingClick(
+															session
+														)
+													}
+													className="p-4 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+												>
+													<div className="flex justify-between items-start mb-3">
+														<h4 className="font-medium text-[#111418] font-['Manrope',Helvetica]">
+															{session.type}
+														</h4>
+														<Badge
+															variant="secondary"
+															className="text-xs"
+														>
+															{session.ageGroup}
+														</Badge>
+													</div>
+													<div className="space-y-2 text-sm text-[#60758a] font-['Manrope',Helvetica]">
+														<div className="flex items-center gap-2">
+															<CalendarIcon className="w-4 h-4" />
+															{new Date(
+																session.date
+															).toLocaleDateString()}
+														</div>
+														<div className="flex items-center gap-2">
+															<Clock className="w-4 h-4" />
+															{session.time} (
+															{session.duration})
+														</div>
+														<div className="flex items-center gap-2">
+															<MapPin className="w-4 h-4" />
+															{session.location}
+														</div>
+													</div>
 												</div>
-												<div className="space-y-2 text-sm text-[#60758a] font-['Manrope',Helvetica]">
-													<div className="flex items-center gap-2">
-														<CalendarIcon className="w-4 h-4" />
-														{new Date(
-															session.date
-														).toLocaleDateString()}
-													</div>
-													<div className="flex items-center gap-2">
-														<Clock className="w-4 h-4" />
-														{session.time} (
-														{session.duration})
-													</div>
-													<div className="flex items-center gap-2">
-														<MapPin className="w-4 h-4" />
-														{session.location}
-													</div>
-												</div>
-											</div>
-										))}
-								</div>
+											)
+										)}
+									</div>
+								) : (
+									<p className="text-[#60758a] text-sm font-['Manrope',Helvetica]">
+										No upcoming{" "}
+										{ageFilter !== "all"
+											? `${ageFilter} `
+											: ""}
+										training sessions scheduled.
+									</p>
+								)}
 							</div>
 						</div>
 					</div>
