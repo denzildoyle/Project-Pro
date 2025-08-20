@@ -58,7 +58,7 @@ const matchData: Match[] = [
 	{
 		id: 1,
 		date: "2025-01-15",
-		time: "15:00",
+		time: "3:00",
 		homeTeam: "Project Pro U15",
 		awayTeam: "City Academy U15",
 		venue: "Project Pro Stadium",
@@ -81,7 +81,7 @@ const matchData: Match[] = [
 	{
 		id: 2,
 		date: "2025-01-18",
-		time: "14:30",
+		time: "2:30",
 		homeTeam: "United Youth U17",
 		awayTeam: "Project Pro U17",
 		venue: "United Youth Ground",
@@ -103,8 +103,8 @@ const matchData: Match[] = [
 	},
 	{
 		id: 3,
-		date: "2025-01-20",
-		time: "16:00",
+		date: "2025-08-19",
+		time: "4:00",
 		homeTeam: "Project Pro U13",
 		awayTeam: "Rangers Youth U13",
 		venue: "Project Pro Training Ground",
@@ -127,7 +127,7 @@ const matchData: Match[] = [
 	{
 		id: 4,
 		date: "2025-01-22",
-		time: "19:00",
+		time: "7:00",
 		homeTeam: "Project Pro U17",
 		awayTeam: "Elite Academy U17",
 		venue: "Project Pro Stadium",
@@ -150,7 +150,7 @@ const matchData: Match[] = [
 	{
 		id: 5,
 		date: "2025-01-12",
-		time: "15:30",
+		time: "3:30",
 		homeTeam: "Project Pro U15",
 		awayTeam: "Coastal FC U15",
 		venue: "Project Pro Stadium",
@@ -235,9 +235,12 @@ export const Matches = ({
 	useEffect(() => {
 		const fetchWeather = async () => {
 			if (!selectedMatch) return;
-			const city = selectedMatch.venue.split(" ")[0]; // crude city extraction
+			const city = "Port of Spain"; // crude city extraction
 			const date = selectedMatch.date;
 
+			// TO DO: Updated venue, time and date
+
+			const venue = selectedMatch.venue;
 			// OpenWeatherMap only provides forecast for up to 5 days ahead for free accounts.
 			// We'll fetch current weather for demo purposes.
 			const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
@@ -247,6 +250,9 @@ export const Matches = ({
 			try {
 				const res = await fetch(url);
 				const data = await res.json();
+				console.log("Weather data:", data);
+				console.log("Weather date:", date);
+
 				if (data.weather && data.weather.length > 0) {
 					setWeather(`${data.weather[0].main}, ${data.main.temp}°C`);
 				} else {
@@ -1078,6 +1084,30 @@ export const Matches = ({
 								{/* Basic Info */}
 								<div className="grid grid-cols-2 gap-4">
 									<div className="space-y-3">
+										<div className="flex items-center gap-2 text-sm">
+											<Clock className="w-4 h-4 text-[#60758a]" />
+											<span className="font-medium font-['Manrope',Helvetica]">
+												Arival Time:
+											</span>
+											<span className="text-[#60758a] font-['Manrope',Helvetica]">
+												{(() => {
+													const [hours, minutes] =
+														selectedMatch.time
+															.split(":")
+															.map(Number);
+													const endDate = new Date(
+														0,
+														0,
+														0,
+														hours - 1,
+														minutes
+													);
+													return endDate
+														.toTimeString()
+														.slice(0, 5);
+												})()}
+											</span>
+										</div>
 										<div className="flex items-center gap-2 text-sm">
 											<Clock className="w-4 h-4 text-[#60758a]" />
 											<span className="font-medium font-['Manrope',Helvetica]">
