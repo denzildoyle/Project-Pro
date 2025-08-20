@@ -131,10 +131,8 @@ export const Registration = (): JSX.Element => {
 	const strongFootOptions = ["Left", "Right", "Both"];
 	const tshirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
 	const preferredLocations = [
-		"Nelson Mandela Park",
-		"Port of Spain",
-		"Stalagnite Park",
-		"Cunupia",
+		"Nelson Mandela Park Port of Spain",
+		"Stalagnite Park Cunupia",
 	];
 
 	const handleInputChange = (
