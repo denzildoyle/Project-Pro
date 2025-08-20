@@ -25,7 +25,6 @@ export const Header = ({ role }: HeaderProps): JSX.Element => {
 		{ label: "Training", href: "/training" },
 		{ label: "Matches", href: "/matches" },
 		{ label: "Reports", href: "#" },
-		{ label: "Global Rating", href: "#" },
 	];
 
 	const publicMenu = [
