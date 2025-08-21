@@ -14,7 +14,7 @@ interface HeaderProps {
 
 export const Header = ({ role }: HeaderProps): JSX.Element => {
 	const coachMenu = [
-		{ label: "Players", href: "#" },
+		{ label: "Players", href: "/" },
 		{ label: "Training", href: "/training" },
 		{ label: "Matches", href: "/matches" },
 		{ label: "Drills", href: "/drills" },
@@ -42,7 +42,7 @@ export const Header = ({ role }: HeaderProps): JSX.Element => {
 	return (
 		<header className="flex items-center justify-between px-10 py-3 border-b border-[#e5e8ea] w-full">
 			{/* Logo and Brand Name */}
-			<div className="flex items-center gap-4">
+			<a href="/" className="flex items-center gap-4">
 				<div className="size-4">
 					<svg
 						viewBox="0 0 48 48"
@@ -60,7 +60,7 @@ export const Header = ({ role }: HeaderProps): JSX.Element => {
 				<h1 className="font-bold text-lg text-[#111416] font-['Manrope',Helvetica] leading-[23px]">
 					Project Pro
 				</h1>
-			</div>
+			</a>
 
 			{/* Navigation and User Section */}
 			<div className="flex flex-1 justify-end gap-8">
