@@ -11,6 +11,8 @@ import { Matches } from "./screens/Matches";
 import { Drills } from "./screens/Drills";
 import { NotFound } from "./screens/NotFound";
 import { Login } from "./screens/Login";
+import { ForgotPassword } from "./screens/ForgotPassword";
+import { Account } from "./screens/Account";
 
 const getPageTitle = (pathname: string): string => {
 	if (pathname.startsWith("/training")) return "Training | Project Pro";
@@ -36,6 +38,9 @@ function AppRoutes() {
 			<Route path="/training" element={<Training />} />
 			<Route path="/matches" element={<Matches />} />
 			<Route path="/drills" element={<Drills />} />
+			<Route path="/forgot-password" element={<ForgotPassword />} />
+			<Route path="/account" element={<Account />} />
+
 			<Route
 				path="/player/:playerId/assessment"
 				element={<PlayerAssessment />}
