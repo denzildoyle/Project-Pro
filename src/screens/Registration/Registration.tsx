@@ -1,3 +1,4 @@
+//Multi-player registration with dynamic form creation
 import React, { useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -25,7 +26,26 @@ import {
 	Phone,
 	Trophy,
 	Shirt,
+	Users,
 } from "lucide-react";
+
+interface PlayerFormData {
+	playerName: string;
+	playerDateOfBirth: string;
+	playerPhoto: string;
+	playerCity: string;
+	playerSchool: string;
+	playerCountry: string;
+	playerPosition: string;
+	playerStrongFoot: string;
+	playerSportHistory: string;
+	preferredLocation: string;
+	hobbiesInterests: string;
+	ailmentsAllergies: string;
+	tshirtSize: string;
+	emergencyContactName: string;
+	emergencyContactNumber: string;
+}
 
 interface RegistrationFormData {
 	// Parent information
@@ -33,65 +53,84 @@ interface RegistrationFormData {
 	parentEmail: string;
 	parentPassword: string;
 	confirmPassword: string;
+	numberOfPlayers: number;
 
-	// Player basic information
-	playerName: string;
-	playerDateOfBirth: string;
-	playerPhoto: string;
-	playerCity: string;
-	playerSchool: string;
-	playerCountry: string;
-
-	// Player sports information
-	playerPosition: string;
-	playerStrongFoot: string;
-	playerSportHistory: string;
-	preferredLocation: string;
-
-	// Personal details
-	hobbiesInterests: string;
-	ailmentsAllergies: string;
-	tshirtSize: string;
-
-	// Emergency contact
-	emergencyContactName: string;
-	emergencyContactNumber: string;
+	// Multiple players
+	players: PlayerFormData[];
 }
 
-const STEPS = [
-	{ id: 1, title: "Parent Info", icon: User },
-	{ id: 2, title: "Player Basics", icon: Shirt },
-	{ id: 3, title: "Sports Info", icon: Trophy },
-	{ id: 4, title: "Personal Details", icon: Heart },
-	{ id: 5, title: "Emergency Contact", icon: Phone },
-];
+const createEmptyPlayer = (): PlayerFormData => ({
+	playerName: "",
+	playerDateOfBirth: "",
+	playerPhoto: "",
+	playerCity: "",
+	playerSchool: "",
+	playerCountry: "",
+	playerPosition: "",
+	playerStrongFoot: "",
+	playerSportHistory: "",
+	preferredLocation: "",
+	hobbiesInterests: "",
+	ailmentsAllergies: "",
+	tshirtSize: "",
+	emergencyContactName: "",
+	emergencyContactNumber: "",
+});
+
+const copyPlayerData = (
+	sourcePlayer: PlayerFormData,
+	fieldsToExclude: (keyof PlayerFormData)[] = []
+): PlayerFormData => {
+	const newPlayer = { ...sourcePlayer };
+	fieldsToExclude.forEach((field) => {
+		newPlayer[field] = "";
+	});
+	return newPlayer;
+};
+
+// Dynamic step generation based on number of players
+const generateSteps = (numberOfPlayers: number) => {
+	const steps = [
+		{ id: 1, title: "Parent Info", icon: User },
+		{ id: 2, title: "Number of Players", icon: Users },
+	];
+
+	for (let i = 1; i <= numberOfPlayers; i++) {
+		steps.push(
+			{ id: steps.length + 1, title: `Player ${i} Basics`, icon: Shirt },
+			{ id: steps.length + 2, title: `Player ${i} Sports`, icon: Trophy },
+			{
+				id: steps.length + 3,
+				title: `Player ${i} Personal`,
+				icon: Heart,
+			},
+			{
+				id: steps.length + 4,
+				title: `Player ${i} Emergency`,
+				icon: Phone,
+			}
+		);
+	}
+
+	return steps;
+};
 
 export const Registration = (): JSX.Element => {
 	const [currentStep, setCurrentStep] = useState(1);
+	const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
 	const [formData, setFormData] = useState<RegistrationFormData>({
 		parentName: "",
 		parentEmail: "",
 		parentPassword: "",
 		confirmPassword: "",
-		playerName: "",
-		playerDateOfBirth: "",
-		playerPhoto: "",
-		playerCity: "",
-		playerSchool: "",
-		playerCountry: "",
-		playerPosition: "",
-		playerStrongFoot: "",
-		playerSportHistory: "",
-		preferredLocation: "",
-		hobbiesInterests: "",
-		ailmentsAllergies: "",
-		tshirtSize: "",
-		emergencyContactName: "",
-		emergencyContactNumber: "",
+		numberOfPlayers: 1,
+		players: [createEmptyPlayer()],
 	});
 
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const STEPS = generateSteps(formData.numberOfPlayers);
 
 	const positions = [
 		"Goalkeeper",
@@ -135,21 +174,153 @@ export const Registration = (): JSX.Element => {
 		"Stalagnite Park Cunupia",
 	];
 
-	const handleInputChange = (
-		field: keyof RegistrationFormData,
-		value: string
+	const handleParentInputChange = (
+		field: keyof Omit<RegistrationFormData, "players">,
+		value: string | number
 	) => {
-		setFormData((prev) => ({
-			...prev,
-			[field]: value,
-		}));
+		if (field === "numberOfPlayers") {
+			const numPlayers =
+				typeof value === "string" ? parseInt(value, 10) : value;
+			const currentPlayers = formData.players;
+			const newPlayers = [...currentPlayers];
+
+			if (numPlayers > currentPlayers.length) {
+				// Add new players, copying data from the first player (excluding personal identifiers)
+				const sourcePlayer =
+					currentPlayers.length > 0
+						? currentPlayers[0]
+						: createEmptyPlayer();
+				const fieldsToExclude: (keyof PlayerFormData)[] = [
+					"playerName",
+					"playerDateOfBirth",
+					"playerPhoto",
+				];
+
+				for (let i = currentPlayers.length; i < numPlayers; i++) {
+					if (currentPlayers.length > 0) {
+						// Copy from first player, but exclude personal info
+						const newPlayer = copyPlayerData(
+							sourcePlayer,
+							fieldsToExclude
+						);
+						newPlayers.push(newPlayer);
+					} else {
+						newPlayers.push(createEmptyPlayer());
+					}
+				}
+			} else if (numPlayers < currentPlayers.length) {
+				// Remove excess players
+				newPlayers.splice(numPlayers);
+			}
+
+			setFormData((prev) => ({
+				...prev,
+				[field]: numPlayers,
+				players: newPlayers,
+			}));
+		} else {
+			setFormData((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+		}
 
 		// Clear error when user starts typing
-		if (errors[field]) {
+		if (errors[field as string]) {
 			setErrors((prev) => ({
 				...prev,
-				[field]: "",
+				[field as string]: "",
 			}));
+		}
+	};
+
+	const handlePlayerInputChange = (
+		playerIndex: number,
+		field: keyof PlayerFormData,
+		value: string
+	) => {
+		setFormData((prev) => {
+			const newPlayers = [...prev.players];
+			newPlayers[playerIndex] = {
+				...newPlayers[playerIndex],
+				[field]: value,
+			};
+
+			// If this is the first player and we have multiple players, update subsequent players
+			// with non-personal information
+			if (playerIndex === 0 && prev.numberOfPlayers > 1) {
+				const fieldsToSync: (keyof PlayerFormData)[] = [
+					"playerCity",
+					"playerSchool",
+					"playerCountry",
+					"playerPosition",
+					"playerStrongFoot",
+					"playerSportHistory",
+					"preferredLocation",
+					"hobbiesInterests",
+					"ailmentsAllergies",
+					"tshirtSize",
+					"emergencyContactName",
+					"emergencyContactNumber",
+				];
+
+				// Only sync if this field should be synced and other players don't have this field filled
+				if (fieldsToSync.includes(field)) {
+					for (let i = 1; i < newPlayers.length; i++) {
+						// Only update if the field is empty in the target player
+						if (!newPlayers[i][field]) {
+							newPlayers[i] = {
+								...newPlayers[i],
+								[field]: value,
+							};
+						}
+					}
+				}
+			}
+
+			return {
+				...prev,
+				players: newPlayers,
+			};
+		});
+
+		// Clear error when user starts typing
+		const errorKey = `player${playerIndex}_${field}`;
+		if (errors[errorKey]) {
+			setErrors((prev) => ({
+				...prev,
+				[errorKey]: "",
+			}));
+		}
+	};
+
+	const getCurrentPlayerFromStep = (step: number): number => {
+		if (step <= 2) return 0; // Parent info and number of players steps
+
+		// Each player has 4 steps (basics, sports, personal, emergency)
+		const playerStepOffset = step - 3; // Steps after parent info and number selection
+		return Math.floor(playerStepOffset / 4);
+	};
+
+	const getCurrentPlayerStepType = (
+		step: number
+	): "basics" | "sports" | "personal" | "emergency" => {
+		if (step <= 2) return "basics";
+
+		const playerStepOffset = step - 3;
+		const stepInPlayerSequence = playerStepOffset % 4;
+
+		switch (stepInPlayerSequence) {
+			case 0:
+				return "basics";
+			case 1:
+				return "sports";
+			case 2:
+				return "personal";
+			case 3:
+				return "emergency";
+			default:
+				return "basics";
 		}
 	};
 
@@ -180,62 +351,85 @@ export const Registration = (): JSX.Element => {
 				}
 				break;
 
-			case 2: // Player Basics
-				if (!formData.playerName.trim()) {
-					newErrors.playerName = "Player name is required";
-				}
-				if (!formData.playerDateOfBirth) {
-					newErrors.playerDateOfBirth =
-						"Player date of birth is required";
-				} else {
-					const birthDate = new Date(formData.playerDateOfBirth);
-					const today = new Date();
-					const age = today.getFullYear() - birthDate.getFullYear();
-					if (age < 5 || age > 25) {
-						newErrors.playerDateOfBirth =
-							"Player must be between 5 and 25 years old";
-					}
-				}
-				if (!formData.playerCity.trim()) {
-					newErrors.playerCity = "Player city is required";
-				}
-				if (!formData.playerSchool.trim()) {
-					newErrors.playerSchool = "Player school is required";
-				}
-				if (!formData.playerCountry) {
-					newErrors.playerCountry = "Player country is required";
-				}
-				break;
-
-			case 3: // Sports Info
-				if (!formData.playerStrongFoot) {
-					newErrors.playerStrongFoot = "Strong foot is required";
-				}
-				if (!formData.preferredLocation) {
-					newErrors.preferredLocation =
-						"Preferred location is required";
-				}
-				break;
-
-			case 4: // Personal Details
-				if (!formData.tshirtSize) {
-					newErrors.tshirtSize = "T-shirt size is required";
-				}
-				break;
-
-			case 5: // Emergency Contact
-				if (!formData.emergencyContactName.trim()) {
-					newErrors.emergencyContactName =
-						"Emergency contact name is required";
-				}
-				if (!formData.emergencyContactNumber.trim()) {
-					newErrors.emergencyContactNumber =
-						"Emergency contact number is required";
-				} else if (
-					!/^\+?[\d\s\-\(\)]+$/.test(formData.emergencyContactNumber)
+			case 2: // Number of Players
+				if (
+					formData.numberOfPlayers < 1 ||
+					formData.numberOfPlayers > 10
 				) {
-					newErrors.emergencyContactNumber =
-						"Please enter a valid phone number";
+					newErrors.numberOfPlayers =
+						"Number of players must be between 1 and 10";
+				}
+				break;
+
+			default:
+				// Player-specific validation
+				const playerIndex = getCurrentPlayerFromStep(step);
+				const stepType = getCurrentPlayerStepType(step);
+				const player = formData.players[playerIndex];
+
+				if (stepType === "basics") {
+					if (!player.playerName.trim()) {
+						newErrors[`player${playerIndex}_playerName`] =
+							"Player name is required";
+					}
+					if (!player.playerDateOfBirth) {
+						newErrors[`player${playerIndex}_playerDateOfBirth`] =
+							"Player date of birth is required";
+					} else {
+						const birthDate = new Date(player.playerDateOfBirth);
+						const today = new Date();
+						const age =
+							today.getFullYear() - birthDate.getFullYear();
+						if (age < 5 || age > 25) {
+							newErrors[
+								`player${playerIndex}_playerDateOfBirth`
+							] = "Player must be between 5 and 25 years old";
+						}
+					}
+					if (!player.playerCity.trim()) {
+						newErrors[`player${playerIndex}_playerCity`] =
+							"Player city is required";
+					}
+					if (!player.playerSchool.trim()) {
+						newErrors[`player${playerIndex}_playerSchool`] =
+							"Player school is required";
+					}
+					if (!player.playerCountry) {
+						newErrors[`player${playerIndex}_playerCountry`] =
+							"Player country is required";
+					}
+				} else if (stepType === "sports") {
+					if (!player.playerStrongFoot) {
+						newErrors[`player${playerIndex}_playerStrongFoot`] =
+							"Strong foot is required";
+					}
+					if (!player.preferredLocation) {
+						newErrors[`player${playerIndex}_preferredLocation`] =
+							"Preferred location is required";
+					}
+				} else if (stepType === "personal") {
+					if (!player.tshirtSize) {
+						newErrors[`player${playerIndex}_tshirtSize`] =
+							"T-shirt size is required";
+					}
+				} else if (stepType === "emergency") {
+					if (!player.emergencyContactName.trim()) {
+						newErrors[`player${playerIndex}_emergencyContactName`] =
+							"Emergency contact name is required";
+					}
+					if (!player.emergencyContactNumber.trim()) {
+						newErrors[
+							`player${playerIndex}_emergencyContactNumber`
+						] = "Emergency contact number is required";
+					} else if (
+						!/^\+?[\d\s\-\(\)]+$/.test(
+							player.emergencyContactNumber
+						)
+					) {
+						newErrors[
+							`player${playerIndex}_emergencyContactNumber`
+						] = "Please enter a valid phone number";
+					}
 				}
 				break;
 		}
@@ -247,11 +441,17 @@ export const Registration = (): JSX.Element => {
 	const handleNext = () => {
 		if (validateStep(currentStep)) {
 			setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
+			// Update current player index based on the new step
+			const newPlayerIndex = getCurrentPlayerFromStep(currentStep + 1);
+			setCurrentPlayerIndex(newPlayerIndex);
 		}
 	};
 
 	const handlePrevious = () => {
 		setCurrentStep((prev) => Math.max(prev - 1, 1));
+		// Update current player index based on the new step
+		const newPlayerIndex = getCurrentPlayerFromStep(currentStep - 1);
+		setCurrentPlayerIndex(newPlayerIndex);
 	};
 
 	const handleSubmit = async () => {
@@ -264,7 +464,9 @@ export const Registration = (): JSX.Element => {
 		try {
 			console.log("Registration data:", formData);
 			await new Promise((resolve) => setTimeout(resolve, 2000));
-			alert("Registration successful! Welcome to Project Pro!");
+			alert(
+				`Registration successful! Welcome to Project Pro! ${formData.numberOfPlayers} player(s) registered.`
+			);
 		} catch (error) {
 			console.error("Registration error:", error);
 			alert("Registration failed. Please try again.");
@@ -301,7 +503,7 @@ export const Registration = (): JSX.Element => {
 									type="text"
 									value={formData.parentName}
 									onChange={(e) =>
-										handleInputChange(
+										handleParentInputChange(
 											"parentName",
 											e.target.value
 										)
@@ -332,7 +534,7 @@ export const Registration = (): JSX.Element => {
 									type="email"
 									value={formData.parentEmail}
 									onChange={(e) =>
-										handleInputChange(
+										handleParentInputChange(
 											"parentEmail",
 											e.target.value
 										)
@@ -364,7 +566,7 @@ export const Registration = (): JSX.Element => {
 										type="password"
 										value={formData.parentPassword}
 										onChange={(e) =>
-											handleInputChange(
+											handleParentInputChange(
 												"parentPassword",
 												e.target.value
 											)
@@ -395,7 +597,7 @@ export const Registration = (): JSX.Element => {
 										type="password"
 										value={formData.confirmPassword}
 										onChange={(e) =>
-											handleInputChange(
+											handleParentInputChange(
 												"confirmPassword",
 												e.target.value
 											)
@@ -423,559 +625,67 @@ export const Registration = (): JSX.Element => {
 					<Card>
 						<CardHeader>
 							<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
-								<Shirt className="h-5 w-5" />
-								Player Basic Information
+								<Users className="h-5 w-5" />
+								Number of Players
 							</CardTitle>
 							<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
-								Basic details about the player
+								How many players would you like to register?
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<Label
-										htmlFor="playerName"
-										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-									>
-										Player Name *
-									</Label>
-									<Input
-										id="playerName"
-										type="text"
-										value={formData.playerName}
-										onChange={(e) =>
-											handleInputChange(
-												"playerName",
-												e.target.value
-											)
-										}
-										placeholder="Enter player's full name"
-										className={`font-['Manrope',Helvetica] ${
-											errors.playerName
-												? "border-red-500"
-												: ""
-										}`}
-									/>
-									{errors.playerName && (
-										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-											{errors.playerName}
-										</p>
-									)}
-								</div>
-
-								<div className="space-y-2">
-									<Label
-										htmlFor="playerDateOfBirth"
-										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-									>
-										Date of Birth *
-									</Label>
-									<Input
-										id="playerDateOfBirth"
-										type="date"
-										value={formData.playerDateOfBirth}
-										onChange={(e) =>
-											handleInputChange(
-												"playerDateOfBirth",
-												e.target.value
-											)
-										}
-										className={`font-['Manrope',Helvetica] ${
-											errors.playerDateOfBirth
-												? "border-red-500"
-												: ""
-										}`}
-									/>
-									{errors.playerDateOfBirth && (
-										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-											{errors.playerDateOfBirth}
-										</p>
-									)}
-								</div>
-							</div>
-
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<Label
-										htmlFor="playerCity"
-										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-									>
-										City *
-									</Label>
-									<Input
-										id="playerCity"
-										type="text"
-										value={formData.playerCity}
-										onChange={(e) =>
-											handleInputChange(
-												"playerCity",
-												e.target.value
-											)
-										}
-										placeholder="Enter player's city"
-										className={`font-['Manrope',Helvetica] ${
-											errors.playerCity
-												? "border-red-500"
-												: ""
-										}`}
-									/>
-									{errors.playerCity && (
-										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-											{errors.playerCity}
-										</p>
-									)}
-								</div>
-
-								<div className="space-y-2">
-									<Label
-										htmlFor="playerCountry"
-										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-									>
-										Country *
-									</Label>
-									<Select
-										value={formData.playerCountry}
-										onValueChange={(value) =>
-											handleInputChange(
-												"playerCountry",
-												value
-											)
-										}
-									>
-										<SelectTrigger
-											className={`font-['Manrope',Helvetica] ${
-												errors.playerCountry
-													? "border-red-500"
-													: ""
-											}`}
-										>
-											<SelectValue placeholder="Select country" />
-										</SelectTrigger>
-										<SelectContent>
-											{countries.map((country) => (
-												<SelectItem
-													key={country}
-													value={country}
-													className="font-['Manrope',Helvetica]"
-												>
-													{country}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									{errors.playerCountry && (
-										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-											{errors.playerCountry}
-										</p>
-									)}
-								</div>
-							</div>
-
 							<div className="space-y-2">
 								<Label
-									htmlFor="playerSchool"
+									htmlFor="numberOfPlayers"
 									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
 								>
-									School *
-								</Label>
-								<Input
-									id="playerSchool"
-									type="text"
-									value={formData.playerSchool}
-									onChange={(e) =>
-										handleInputChange(
-											"playerSchool",
-											e.target.value
-										)
-									}
-									placeholder="Enter school name"
-									className={`font-['Manrope',Helvetica] ${
-										errors.playerSchool
-											? "border-red-500"
-											: ""
-									}`}
-								/>
-								{errors.playerSchool && (
-									<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-										{errors.playerSchool}
-									</p>
-								)}
-							</div>
-
-							<div className="space-y-2">
-								<Label
-									htmlFor="playerPhoto"
-									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-								>
-									Player Photo URL (Optional)
-								</Label>
-								<Input
-									id="playerPhoto"
-									type="url"
-									value={formData.playerPhoto}
-									onChange={(e) =>
-										handleInputChange(
-											"playerPhoto",
-											e.target.value
-										)
-									}
-									placeholder="Enter photo URL or leave blank"
-									className="font-['Manrope',Helvetica]"
-								/>
-								<p className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
-									You can add a photo URL or upload one later
-								</p>
-							</div>
-						</CardContent>
-					</Card>
-				);
-
-			case 3:
-				return (
-					<Card>
-						<CardHeader>
-							<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
-								<Trophy className="h-5 w-5" />
-								Sports Information
-							</CardTitle>
-							<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
-								Football-related details about the player
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<Label
-										htmlFor="playerStrongFoot"
-										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-									>
-										Strong Foot *
-									</Label>
-									<Select
-										value={formData.playerStrongFoot}
-										onValueChange={(value) =>
-											handleInputChange(
-												"playerStrongFoot",
-												value
-											)
-										}
-									>
-										<SelectTrigger
-											className={`font-['Manrope',Helvetica] ${
-												errors.playerStrongFoot
-													? "border-red-500"
-													: ""
-											}`}
-										>
-											<SelectValue placeholder="Select strong foot" />
-										</SelectTrigger>
-										<SelectContent>
-											{strongFootOptions.map((foot) => (
-												<SelectItem
-													key={foot}
-													value={foot}
-													className="font-['Manrope',Helvetica]"
-												>
-													{foot}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									{errors.playerStrongFoot && (
-										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-											{errors.playerStrongFoot}
-										</p>
-									)}
-								</div>
-
-								<div className="space-y-2">
-									<Label
-										htmlFor="playerPosition"
-										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-									>
-										Position (Optional)
-									</Label>
-									<Select
-										value={formData.playerPosition}
-										onValueChange={(value) =>
-											handleInputChange(
-												"playerPosition",
-												value
-											)
-										}
-									>
-										<SelectTrigger className="font-['Manrope',Helvetica]">
-											<SelectValue placeholder="Select position" />
-										</SelectTrigger>
-										<SelectContent>
-											{positions.map((position) => (
-												<SelectItem
-													key={position}
-													value={position}
-													className="font-['Manrope',Helvetica]"
-												>
-													{position}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-							</div>
-
-							<div className="space-y-2">
-								<Label
-									htmlFor="preferredLocation"
-									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-								>
-									Preferred Location *
+									Number of Players *
 								</Label>
 								<Select
-									value={formData.preferredLocation}
+									value={formData.numberOfPlayers.toString()}
 									onValueChange={(value) =>
-										handleInputChange(
-											"preferredLocation",
-											value
+										handleParentInputChange(
+											"numberOfPlayers",
+											parseInt(value, 10)
 										)
 									}
 								>
 									<SelectTrigger
 										className={`font-['Manrope',Helvetica] ${
-											errors.preferredLocation
+											errors.numberOfPlayers
 												? "border-red-500"
 												: ""
 										}`}
 									>
-										<SelectValue placeholder="Select preferred location" />
+										<SelectValue placeholder="Select number of players" />
 									</SelectTrigger>
 									<SelectContent>
-										{preferredLocations.map((location) => (
-											<SelectItem
-												key={location}
-												value={location}
-												className="font-['Manrope',Helvetica]"
-											>
-												{location}
-											</SelectItem>
-										))}
+										{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
+											(num) => (
+												<SelectItem
+													key={num}
+													value={num.toString()}
+													className="font-['Manrope',Helvetica]"
+												>
+													{num}{" "}
+													{num === 1
+														? "Player"
+														: "Players"}
+												</SelectItem>
+											)
+										)}
 									</SelectContent>
 								</Select>
-								{errors.preferredLocation && (
+								{errors.numberOfPlayers && (
 									<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-										{errors.preferredLocation}
-									</p>
-								)}
-							</div>
-
-							<div className="space-y-2">
-								<Label
-									htmlFor="playerSportHistory"
-									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-								>
-									Football History (Optional)
-								</Label>
-								<Textarea
-									id="playerSportHistory"
-									value={formData.playerSportHistory}
-									onChange={(e) =>
-										handleInputChange(
-											"playerSportHistory",
-											e.target.value
-										)
-									}
-									placeholder="Tell us about the player's football experience - past or current clubs, school teams, camps, casual play, etc."
-									className="font-['Manrope',Helvetica] min-h-[100px]"
-									rows={4}
-								/>
-								<p className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
-									Include any clubs, school teams, camps, or
-									other football experiences
-								</p>
-							</div>
-						</CardContent>
-					</Card>
-				);
-
-			case 4:
-				return (
-					<Card>
-						<CardHeader>
-							<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
-								<Heart className="h-5 w-5" />
-								Personal Details
-							</CardTitle>
-							<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
-								Additional information about the player
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<Label
-									htmlFor="hobbiesInterests"
-									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-								>
-									Hobbies & Interests (Optional)
-								</Label>
-								<Textarea
-									id="hobbiesInterests"
-									value={formData.hobbiesInterests}
-									onChange={(e) =>
-										handleInputChange(
-											"hobbiesInterests",
-											e.target.value
-										)
-									}
-									placeholder="What does the player enjoy doing besides football? (e.g., reading, music, video games, etc.)"
-									className="font-['Manrope',Helvetica] min-h-[80px]"
-									rows={3}
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<Label
-									htmlFor="ailmentsAllergies"
-									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-								>
-									Ailments/Allergies (Optional)
-								</Label>
-								<Textarea
-									id="ailmentsAllergies"
-									value={formData.ailmentsAllergies}
-									onChange={(e) =>
-										handleInputChange(
-											"ailmentsAllergies",
-											e.target.value
-										)
-									}
-									placeholder="Please list any medical conditions, allergies, or health concerns we should be aware of"
-									className="font-['Manrope',Helvetica] min-h-[80px]"
-									rows={3}
-								/>
-								<p className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
-									This information is kept confidential and
-									used only for safety purposes
-								</p>
-							</div>
-
-							<div className="space-y-2">
-								<Label
-									htmlFor="tshirtSize"
-									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-								>
-									T-Shirt Size *
-								</Label>
-								<Select
-									value={formData.tshirtSize}
-									onValueChange={(value) =>
-										handleInputChange("tshirtSize", value)
-									}
-								>
-									<SelectTrigger
-										className={`font-['Manrope',Helvetica] ${
-											errors.tshirtSize
-												? "border-red-500"
-												: ""
-										}`}
-									>
-										<SelectValue placeholder="Select t-shirt size" />
-									</SelectTrigger>
-									<SelectContent>
-										{tshirtSizes.map((size) => (
-											<SelectItem
-												key={size}
-												value={size}
-												className="font-['Manrope',Helvetica]"
-											>
-												{size}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								{errors.tshirtSize && (
-									<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-										{errors.tshirtSize}
-									</p>
-								)}
-							</div>
-						</CardContent>
-					</Card>
-				);
-
-			case 5:
-				return (
-					<Card>
-						<CardHeader>
-							<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
-								<Phone className="h-5 w-5" />
-								Emergency Contact
-							</CardTitle>
-							<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
-								Emergency contact information for the player
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<Label
-									htmlFor="emergencyContactName"
-									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-								>
-									Emergency Contact Name *
-								</Label>
-								<Input
-									id="emergencyContactName"
-									type="text"
-									value={formData.emergencyContactName}
-									onChange={(e) =>
-										handleInputChange(
-											"emergencyContactName",
-											e.target.value
-										)
-									}
-									placeholder="Enter emergency contact's full name"
-									className={`font-['Manrope',Helvetica] ${
-										errors.emergencyContactName
-											? "border-red-500"
-											: ""
-									}`}
-								/>
-								{errors.emergencyContactName && (
-									<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-										{errors.emergencyContactName}
-									</p>
-								)}
-							</div>
-
-							<div className="space-y-2">
-								<Label
-									htmlFor="emergencyContactNumber"
-									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-								>
-									Emergency Contact Number *
-								</Label>
-								<Input
-									id="emergencyContactNumber"
-									type="tel"
-									value={formData.emergencyContactNumber}
-									onChange={(e) =>
-										handleInputChange(
-											"emergencyContactNumber",
-											e.target.value
-										)
-									}
-									placeholder="Enter emergency contact's phone number"
-									className={`font-['Manrope',Helvetica] ${
-										errors.emergencyContactNumber
-											? "border-red-500"
-											: ""
-									}`}
-								/>
-								{errors.emergencyContactNumber && (
-									<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-										{errors.emergencyContactNumber}
+										{errors.numberOfPlayers}
 									</p>
 								)}
 								<p className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
-									Include country code if different from
-									player's country
+									You can register up to 10 players at once.
+									When you fill out information for the first
+									player, shared details (like school, city,
+									sports preferences) will automatically be
+									copied to subsequent players to save time.
 								</p>
 							</div>
 						</CardContent>
@@ -983,6 +693,687 @@ export const Registration = (): JSX.Element => {
 				);
 
 			default:
+				// Player-specific steps
+				const playerIndex = getCurrentPlayerFromStep(currentStep);
+				const stepType = getCurrentPlayerStepType(currentStep);
+				const player = formData.players[playerIndex];
+				const playerNumber = playerIndex + 1;
+
+				if (stepType === "basics") {
+					return (
+						<Card>
+							<CardHeader>
+								<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
+									<Shirt className="h-5 w-5" />
+									Player {playerNumber} - Basic Information
+								</CardTitle>
+								<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
+									Basic details about player {playerNumber}
+									{playerIndex > 0 && (
+										<span className="block mt-1 text-blue-600">
+											Some information has been copied
+											from Player 1. Please update as
+											needed for this player.
+										</span>
+									)}
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div className="space-y-2">
+										<Label
+											htmlFor={`playerName${playerIndex}`}
+											className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+										>
+											Player Name *
+										</Label>
+										<Input
+											id={`playerName${playerIndex}`}
+											type="text"
+											value={player.playerName}
+											onChange={(e) =>
+												handlePlayerInputChange(
+													playerIndex,
+													"playerName",
+													e.target.value
+												)
+											}
+											placeholder="Enter player's full name"
+											className={`font-['Manrope',Helvetica] ${
+												errors[
+													`player${playerIndex}_playerName`
+												]
+													? "border-red-500"
+													: ""
+											}`}
+										/>
+										{errors[
+											`player${playerIndex}_playerName`
+										] && (
+											<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+												{
+													errors[
+														`player${playerIndex}_playerName`
+													]
+												}
+											</p>
+										)}
+									</div>
+
+									<div className="space-y-2">
+										<Label
+											htmlFor={`playerDateOfBirth${playerIndex}`}
+											className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+										>
+											Date of Birth *
+										</Label>
+										<Input
+											id={`playerDateOfBirth${playerIndex}`}
+											type="date"
+											value={player.playerDateOfBirth}
+											onChange={(e) =>
+												handlePlayerInputChange(
+													playerIndex,
+													"playerDateOfBirth",
+													e.target.value
+												)
+											}
+											className={`font-['Manrope',Helvetica] ${
+												errors[
+													`player${playerIndex}_playerDateOfBirth`
+												]
+													? "border-red-500"
+													: ""
+											}`}
+										/>
+										{errors[
+											`player${playerIndex}_playerDateOfBirth`
+										] && (
+											<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+												{
+													errors[
+														`player${playerIndex}_playerDateOfBirth`
+													]
+												}
+											</p>
+										)}
+									</div>
+								</div>
+
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div className="space-y-2">
+										<Label
+											htmlFor={`playerCity${playerIndex}`}
+											className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+										>
+											City *
+										</Label>
+										<Input
+											id={`playerCity${playerIndex}`}
+											type="text"
+											value={player.playerCity}
+											onChange={(e) =>
+												handlePlayerInputChange(
+													playerIndex,
+													"playerCity",
+													e.target.value
+												)
+											}
+											placeholder="Enter player's city"
+											className={`font-['Manrope',Helvetica] ${
+												errors[
+													`player${playerIndex}_playerCity`
+												]
+													? "border-red-500"
+													: ""
+											}`}
+										/>
+										{errors[
+											`player${playerIndex}_playerCity`
+										] && (
+											<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+												{
+													errors[
+														`player${playerIndex}_playerCity`
+													]
+												}
+											</p>
+										)}
+									</div>
+
+									<div className="space-y-2">
+										<Label
+											htmlFor={`playerCountry${playerIndex}`}
+											className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+										>
+											Country *
+										</Label>
+										<Select
+											value={player.playerCountry}
+											onValueChange={(value) =>
+												handlePlayerInputChange(
+													playerIndex,
+													"playerCountry",
+													value
+												)
+											}
+										>
+											<SelectTrigger
+												className={`font-['Manrope',Helvetica] ${
+													errors[
+														`player${playerIndex}_playerCountry`
+													]
+														? "border-red-500"
+														: ""
+												}`}
+											>
+												<SelectValue placeholder="Select country" />
+											</SelectTrigger>
+											<SelectContent>
+												{countries.map((country) => (
+													<SelectItem
+														key={country}
+														value={country}
+														className="font-['Manrope',Helvetica]"
+													>
+														{country}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										{errors[
+											`player${playerIndex}_playerCountry`
+										] && (
+											<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+												{
+													errors[
+														`player${playerIndex}_playerCountry`
+													]
+												}
+											</p>
+										)}
+									</div>
+								</div>
+
+								<div className="space-y-2">
+									<Label
+										htmlFor={`playerSchool${playerIndex}`}
+										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+									>
+										School *
+									</Label>
+									<Input
+										id={`playerSchool${playerIndex}`}
+										type="text"
+										value={player.playerSchool}
+										onChange={(e) =>
+											handlePlayerInputChange(
+												playerIndex,
+												"playerSchool",
+												e.target.value
+											)
+										}
+										placeholder="Enter school name"
+										className={`font-['Manrope',Helvetica] ${
+											errors[
+												`player${playerIndex}_playerSchool`
+											]
+												? "border-red-500"
+												: ""
+										}`}
+									/>
+									{errors[
+										`player${playerIndex}_playerSchool`
+									] && (
+										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+											{
+												errors[
+													`player${playerIndex}_playerSchool`
+												]
+											}
+										</p>
+									)}
+								</div>
+
+								<div className="space-y-2">
+									<Label
+										htmlFor={`playerPhoto${playerIndex}`}
+										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+									>
+										Player Photo URL (Optional)
+									</Label>
+									<Input
+										id={`playerPhoto${playerIndex}`}
+										type="url"
+										value={player.playerPhoto}
+										onChange={(e) =>
+											handlePlayerInputChange(
+												playerIndex,
+												"playerPhoto",
+												e.target.value
+											)
+										}
+										placeholder="Enter photo URL or leave blank"
+										className="font-['Manrope',Helvetica]"
+									/>
+									<p className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
+										You can add a photo URL or upload one
+										later
+									</p>
+								</div>
+							</CardContent>
+						</Card>
+					);
+				} else if (stepType === "sports") {
+					return (
+						<Card>
+							<CardHeader>
+								<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
+									<Trophy className="h-5 w-5" />
+									Player {playerNumber} - Sports Information
+								</CardTitle>
+								<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
+									Football-related details about player{" "}
+									{playerNumber}
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div className="space-y-2">
+										<Label
+											htmlFor={`playerStrongFoot${playerIndex}`}
+											className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+										>
+											Strong Foot *
+										</Label>
+										<Select
+											value={player.playerStrongFoot}
+											onValueChange={(value) =>
+												handlePlayerInputChange(
+													playerIndex,
+													"playerStrongFoot",
+													value
+												)
+											}
+										>
+											<SelectTrigger
+												className={`font-['Manrope',Helvetica] ${
+													errors[
+														`player${playerIndex}_playerStrongFoot`
+													]
+														? "border-red-500"
+														: ""
+												}`}
+											>
+												<SelectValue placeholder="Select strong foot" />
+											</SelectTrigger>
+											<SelectContent>
+												{strongFootOptions.map(
+													(foot) => (
+														<SelectItem
+															key={foot}
+															value={foot}
+															className="font-['Manrope',Helvetica]"
+														>
+															{foot}
+														</SelectItem>
+													)
+												)}
+											</SelectContent>
+										</Select>
+										{errors[
+											`player${playerIndex}_playerStrongFoot`
+										] && (
+											<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+												{
+													errors[
+														`player${playerIndex}_playerStrongFoot`
+													]
+												}
+											</p>
+										)}
+									</div>
+
+									<div className="space-y-2">
+										<Label
+											htmlFor={`playerPosition${playerIndex}`}
+											className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+										>
+											Position (Optional)
+										</Label>
+										<Select
+											value={player.playerPosition}
+											onValueChange={(value) =>
+												handlePlayerInputChange(
+													playerIndex,
+													"playerPosition",
+													value
+												)
+											}
+										>
+											<SelectTrigger className="font-['Manrope',Helvetica]">
+												<SelectValue placeholder="Select position" />
+											</SelectTrigger>
+											<SelectContent>
+												{positions.map((position) => (
+													<SelectItem
+														key={position}
+														value={position}
+														className="font-['Manrope',Helvetica]"
+													>
+														{position}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</div>
+								</div>
+
+								<div className="space-y-2">
+									<Label
+										htmlFor={`preferredLocation${playerIndex}`}
+										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+									>
+										Preferred Location *
+									</Label>
+									<Select
+										value={player.preferredLocation}
+										onValueChange={(value) =>
+											handlePlayerInputChange(
+												playerIndex,
+												"preferredLocation",
+												value
+											)
+										}
+									>
+										<SelectTrigger
+											className={`font-['Manrope',Helvetica] ${
+												errors[
+													`player${playerIndex}_preferredLocation`
+												]
+													? "border-red-500"
+													: ""
+											}`}
+										>
+											<SelectValue placeholder="Select preferred location" />
+										</SelectTrigger>
+										<SelectContent>
+											{preferredLocations.map(
+												(location) => (
+													<SelectItem
+														key={location}
+														value={location}
+														className="font-['Manrope',Helvetica]"
+													>
+														{location}
+													</SelectItem>
+												)
+											)}
+										</SelectContent>
+									</Select>
+									{errors[
+										`player${playerIndex}_preferredLocation`
+									] && (
+										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+											{
+												errors[
+													`player${playerIndex}_preferredLocation`
+												]
+											}
+										</p>
+									)}
+								</div>
+
+								<div className="space-y-2">
+									<Label
+										htmlFor={`playerSportHistory${playerIndex}`}
+										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+									>
+										Football History (Optional)
+									</Label>
+									<Textarea
+										id={`playerSportHistory${playerIndex}`}
+										value={player.playerSportHistory}
+										onChange={(e) =>
+											handlePlayerInputChange(
+												playerIndex,
+												"playerSportHistory",
+												e.target.value
+											)
+										}
+										placeholder="Tell us about the player's football experience - past or current clubs, school teams, camps, casual play, etc."
+										className="font-['Manrope',Helvetica] min-h-[100px]"
+										rows={4}
+									/>
+									<p className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
+										Include any clubs, school teams, camps,
+										or other football experiences
+									</p>
+								</div>
+							</CardContent>
+						</Card>
+					);
+				} else if (stepType === "personal") {
+					return (
+						<Card>
+							<CardHeader>
+								<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
+									<Heart className="h-5 w-5" />
+									Player {playerNumber} - Personal Details
+								</CardTitle>
+								<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
+									Additional information about player{" "}
+									{playerNumber}
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="space-y-2">
+									<Label
+										htmlFor={`hobbiesInterests${playerIndex}`}
+										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+									>
+										Hobbies & Interests (Optional)
+									</Label>
+									<Textarea
+										id={`hobbiesInterests${playerIndex}`}
+										value={player.hobbiesInterests}
+										onChange={(e) =>
+											handlePlayerInputChange(
+												playerIndex,
+												"hobbiesInterests",
+												e.target.value
+											)
+										}
+										placeholder="What does the player enjoy doing besides football? (e.g., reading, music, video games, etc.)"
+										className="font-['Manrope',Helvetica] min-h-[80px]"
+										rows={3}
+									/>
+								</div>
+
+								<div className="space-y-2">
+									<Label
+										htmlFor={`ailmentsAllergies${playerIndex}`}
+										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+									>
+										Ailments/Allergies (Optional)
+									</Label>
+									<Textarea
+										id={`ailmentsAllergies${playerIndex}`}
+										value={player.ailmentsAllergies}
+										onChange={(e) =>
+											handlePlayerInputChange(
+												playerIndex,
+												"ailmentsAllergies",
+												e.target.value
+											)
+										}
+										placeholder="Please list any medical conditions, allergies, or health concerns we should be aware of"
+										className="font-['Manrope',Helvetica] min-h-[80px]"
+										rows={3}
+									/>
+									<p className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
+										This information is kept confidential
+										and used only for safety purposes
+									</p>
+								</div>
+
+								<div className="space-y-2">
+									<Label
+										htmlFor={`tshirtSize${playerIndex}`}
+										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+									>
+										T-Shirt Size *
+									</Label>
+									<Select
+										value={player.tshirtSize}
+										onValueChange={(value) =>
+											handlePlayerInputChange(
+												playerIndex,
+												"tshirtSize",
+												value
+											)
+										}
+									>
+										<SelectTrigger
+											className={`font-['Manrope',Helvetica] ${
+												errors[
+													`player${playerIndex}_tshirtSize`
+												]
+													? "border-red-500"
+													: ""
+											}`}
+										>
+											<SelectValue placeholder="Select t-shirt size" />
+										</SelectTrigger>
+										<SelectContent>
+											{tshirtSizes.map((size) => (
+												<SelectItem
+													key={size}
+													value={size}
+													className="font-['Manrope',Helvetica]"
+												>
+													{size}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									{errors[
+										`player${playerIndex}_tshirtSize`
+									] && (
+										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+											{
+												errors[
+													`player${playerIndex}_tshirtSize`
+												]
+											}
+										</p>
+									)}
+								</div>
+							</CardContent>
+						</Card>
+					);
+				} else if (stepType === "emergency") {
+					return (
+						<Card>
+							<CardHeader>
+								<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
+									<Phone className="h-5 w-5" />
+									Player {playerNumber} - Emergency Contact
+								</CardTitle>
+								<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
+									Emergency contact information for player{" "}
+									{playerNumber}
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="space-y-2">
+									<Label
+										htmlFor={`emergencyContactName${playerIndex}`}
+										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+									>
+										Emergency Contact Name *
+									</Label>
+									<Input
+										id={`emergencyContactName${playerIndex}`}
+										type="text"
+										value={player.emergencyContactName}
+										onChange={(e) =>
+											handlePlayerInputChange(
+												playerIndex,
+												"emergencyContactName",
+												e.target.value
+											)
+										}
+										placeholder="Enter emergency contact's full name"
+										className={`font-['Manrope',Helvetica] ${
+											errors[
+												`player${playerIndex}_emergencyContactName`
+											]
+												? "border-red-500"
+												: ""
+										}`}
+									/>
+									{errors[
+										`player${playerIndex}_emergencyContactName`
+									] && (
+										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+											{
+												errors[
+													`player${playerIndex}_emergencyContactName`
+												]
+											}
+										</p>
+									)}
+								</div>
+
+								<div className="space-y-2">
+									<Label
+										htmlFor={`emergencyContactNumber${playerIndex}`}
+										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
+									>
+										Emergency Contact Number *
+									</Label>
+									<Input
+										id={`emergencyContactNumber${playerIndex}`}
+										type="tel"
+										value={player.emergencyContactNumber}
+										onChange={(e) =>
+											handlePlayerInputChange(
+												playerIndex,
+												"emergencyContactNumber",
+												e.target.value
+											)
+										}
+										placeholder="Enter emergency contact's phone number"
+										className={`font-['Manrope',Helvetica] ${
+											errors[
+												`player${playerIndex}_emergencyContactNumber`
+											]
+												? "border-red-500"
+												: ""
+										}`}
+									/>
+									{errors[
+										`player${playerIndex}_emergencyContactNumber`
+									] && (
+										<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
+											{
+												errors[
+													`player${playerIndex}_emergencyContactNumber`
+												]
+											}
+										</p>
+									)}
+									<p className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
+										Include country code if different from
+										player's country
+									</p>
+								</div>
+							</CardContent>
+						</Card>
+					);
+				}
+
 				return null;
 		}
 	};
@@ -1018,12 +1409,17 @@ export const Registration = (): JSX.Element => {
 					<p className="mt-2 text-sm text-[#60758a] font-['Manrope',Helvetica]">
 						Step {currentStep} of {STEPS.length}:{" "}
 						{STEPS.find((step) => step.id === currentStep)?.title}
+						{formData.numberOfPlayers > 1 && currentStep > 2 && (
+							<span className="block">
+								Registering {formData.numberOfPlayers} players
+							</span>
+						)}
 					</p>
 				</div>
 
 				{/* Progress Steps */}
 				<div className="flex justify-center mb-8">
-					<div className="flex items-center space-x-4">
+					<div className="flex items-center space-x-2 overflow-x-auto pb-2">
 						{STEPS.map((step, index) => {
 							const Icon = step.icon;
 							const isActive = currentStep === step.id;
@@ -1032,10 +1428,10 @@ export const Registration = (): JSX.Element => {
 							return (
 								<div
 									key={step.id}
-									className="flex items-center"
+									className="flex items-center flex-shrink-0"
 								>
 									<div
-										className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
+										className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors ${
 											isActive
 												? "border-[#111416] bg-[#111416] text-white"
 												: isCompleted
@@ -1043,11 +1439,11 @@ export const Registration = (): JSX.Element => {
 												: "border-gray-300 bg-white text-gray-400"
 										}`}
 									>
-										<Icon className="h-4 w-4" />
+										<Icon className="h-3 w-3" />
 									</div>
 									{index < STEPS.length - 1 && (
 										<div
-											className={`w-12 h-0.5 mx-2 ${
+											className={`w-4 h-0.5 mx-1 ${
 												isCompleted
 													? "bg-green-500"
 													: "bg-gray-300"
