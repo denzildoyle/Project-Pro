@@ -1,5 +1,5 @@
-import React from "react";
 import { Button } from "../../../../components/ui/button";
+import { Plus } from "lucide-react";
 
 interface PlayerListHeaderSectionProps {
 	onAddPlayer: () => void;
@@ -19,8 +19,9 @@ export const PlayerListHeaderSection = ({
 			<Button
 				onClick={onAddPlayer}
 				variant="secondary"
-				className="h-8 px-4 py-0 rounded-lg font-medium text-sm text-[#111416] bg-[#eff2f4] hover:bg-[#e4e7e9] w-full sm:w-auto"
+				className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
 			>
+				<Plus className="w-4 h-4 mr-2" />
 				Add Player
 			</Button>
 		</header>
