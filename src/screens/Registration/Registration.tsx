@@ -354,10 +354,10 @@ export const Registration = (): JSX.Element => {
 			case 2: // Number of Players
 				if (
 					formData.numberOfPlayers < 1 ||
-					formData.numberOfPlayers > 10
+					formData.numberOfPlayers > 3
 				) {
 					newErrors.numberOfPlayers =
-						"Number of players must be between 1 and 10";
+						"Number of players must be between 1 and 3";
 				}
 				break;
 
@@ -659,20 +659,18 @@ export const Registration = (): JSX.Element => {
 										<SelectValue placeholder="Select number of players" />
 									</SelectTrigger>
 									<SelectContent>
-										{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
-											(num) => (
-												<SelectItem
-													key={num}
-													value={num.toString()}
-													className="font-['Manrope',Helvetica]"
-												>
-													{num}{" "}
-													{num === 1
-														? "Player"
-														: "Players"}
-												</SelectItem>
-											)
-										)}
+										{[1, 2, 3].map((num) => (
+											<SelectItem
+												key={num}
+												value={num.toString()}
+												className="font-['Manrope',Helvetica]"
+											>
+												{num}{" "}
+												{num === 1
+													? "Player"
+													: "Players"}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 								{errors.numberOfPlayers && (
@@ -681,10 +679,10 @@ export const Registration = (): JSX.Element => {
 									</p>
 								)}
 								<p className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
-									You can register up to 10 players at once.
+									You can register up to 3 players at once.
 									When you fill out information for the first
 									player, shared details (like school, city,
-									sports preferences) will automatically be
+									emergency contact) will automatically be
 									copied to subsequent players to save time.
 								</p>
 							</div>
@@ -712,8 +710,10 @@ export const Registration = (): JSX.Element => {
 									{playerIndex > 0 && (
 										<span className="block mt-1 text-blue-600">
 											Some information has been copied
-											from Player 1. Please update as
-											needed for this player.
+											from{" "}
+											{formData.players[0].playerName}.
+											Please update as needed for this
+											player.
 										</span>
 									)}
 								</CardDescription>
@@ -970,11 +970,12 @@ export const Registration = (): JSX.Element => {
 							<CardHeader>
 								<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
 									<Trophy className="h-5 w-5" />
-									Player {playerNumber} - Sports Information
+									<strong>{player.playerName}</strong> -
+									Sports Information
 								</CardTitle>
 								<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
-									Football-related details about player{" "}
-									{playerNumber}
+									Football-related details about{" "}
+									<strong>{player.playerName}</strong>
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="space-y-4">
@@ -1159,11 +1160,12 @@ export const Registration = (): JSX.Element => {
 							<CardHeader>
 								<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
 									<Heart className="h-5 w-5" />
-									Player {playerNumber} - Personal Details
+									<strong>{player.playerName}</strong> -
+									Personal Details
 								</CardTitle>
 								<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
-									Additional information about player{" "}
-									{playerNumber}
+									Additional information about{" "}
+									<strong>{player.playerName}</strong>
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="space-y-4">
@@ -1278,11 +1280,12 @@ export const Registration = (): JSX.Element => {
 							<CardHeader>
 								<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
 									<Phone className="h-5 w-5" />
-									Player {playerNumber} - Emergency Contact
+									<strong>{player.playerName}</strong> -
+									Emergency Contact
 								</CardTitle>
 								<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
-									Emergency contact information for player{" "}
-									{playerNumber}
+									Emergency contact information for{" "}
+									<strong>{player.playerName}</strong>
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="space-y-4">
