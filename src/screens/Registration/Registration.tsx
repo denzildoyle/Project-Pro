@@ -1,9 +1,12 @@
 //Multi-player registration with dynamic form creation
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
+import COUNTRIES from "../../consts/contries";
+import POSITIONS from "../../consts/positions";
+
 import {
 	Select,
 	SelectContent,
@@ -88,11 +91,11 @@ const copyPlayerData = (
 	return newPlayer;
 };
 
-// Dynamic step generation based on number of players
+// Dynamic step generation based on number of players/children
 const generateSteps = (numberOfPlayers: number) => {
 	const steps = [
 		{ id: 1, title: "Parent Info", icon: User },
-		{ id: 2, title: "Number of Players", icon: Users },
+		{ id: 2, title: "Number of Players/Children", icon: Users },
 	];
 
 	for (let i = 1; i <= numberOfPlayers; i++) {
@@ -131,41 +134,6 @@ export const Registration = (): JSX.Element => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const STEPS = generateSteps(formData.numberOfPlayers);
-
-	const positions = [
-		"Goalkeeper",
-		"Defender",
-		"Midfielder",
-		"Forward",
-		"Center Back",
-		"Full Back",
-		"Wing Back",
-		"Defensive Midfielder",
-		"Central Midfielder",
-		"Attacking Midfielder",
-		"Winger",
-		"Striker",
-	];
-
-	const countries = [
-		"Trinidad and Tobago",
-		"United States",
-		"Canada",
-		"United Kingdom",
-		"Brazil",
-		"Argentina",
-		"Germany",
-		"France",
-		"Spain",
-		"Italy",
-		"Netherlands",
-		"Portugal",
-		"Mexico",
-		"Jamaica",
-		"Barbados",
-		"Guyana",
-		"Suriname",
-	];
 
 	const strongFootOptions = ["Left", "Right", "Both"];
 	const tshirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -295,7 +263,7 @@ export const Registration = (): JSX.Element => {
 	};
 
 	const getCurrentPlayerFromStep = (step: number): number => {
-		if (step <= 2) return 0; // Parent info and number of players steps
+		if (step <= 2) return 0; // Parent info and number of players/children steps
 
 		// Each player has 4 steps (basics, sports, personal, emergency)
 		const playerStepOffset = step - 3; // Steps after parent info and number selection
@@ -351,13 +319,13 @@ export const Registration = (): JSX.Element => {
 				}
 				break;
 
-			case 2: // Number of Players
+			case 2: // Number of Players/children
 				if (
 					formData.numberOfPlayers < 1 ||
 					formData.numberOfPlayers > 3
 				) {
 					newErrors.numberOfPlayers =
-						"Number of players must be between 1 and 3";
+						"Number of players/children must be between 1 and 3";
 				}
 				break;
 
@@ -380,10 +348,10 @@ export const Registration = (): JSX.Element => {
 						const today = new Date();
 						const age =
 							today.getFullYear() - birthDate.getFullYear();
-						if (age < 5 || age > 25) {
+						if (age < 4 || age > 17) {
 							newErrors[
 								`player${playerIndex}_playerDateOfBirth`
-							] = "Player must be between 5 and 25 years old";
+							] = "Player must be between 4 and 17 years old";
 						}
 					}
 					if (!player.playerCity.trim()) {
@@ -626,10 +594,11 @@ export const Registration = (): JSX.Element => {
 						<CardHeader>
 							<CardTitle className="font-['Manrope',Helvetica] font-bold text-xl text-[#111416] flex items-center gap-2">
 								<Users className="h-5 w-5" />
-								Number of Players
+								Number of Players/Children
 							</CardTitle>
 							<CardDescription className="font-['Manrope',Helvetica] text-[#607589]">
-								How many players would you like to register?
+								How many players/children would you like to
+								register?
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
@@ -638,7 +607,7 @@ export const Registration = (): JSX.Element => {
 									htmlFor="numberOfPlayers"
 									className="font-['Manrope',Helvetica] font-medium text-[#111416]"
 								>
-									Number of Players *
+									Number of Players/Children *
 								</Label>
 								<Select
 									value={formData.numberOfPlayers.toString()}
@@ -656,7 +625,7 @@ export const Registration = (): JSX.Element => {
 												: ""
 										}`}
 									>
-										<SelectValue placeholder="Select number of players" />
+										<SelectValue placeholder="Select number of players/children" />
 									</SelectTrigger>
 									<SelectContent>
 										{[1, 2, 3].map((num) => (
@@ -711,8 +680,10 @@ export const Registration = (): JSX.Element => {
 										<span className="block mt-1 text-blue-600">
 											Some information has been copied
 											from{" "}
-											{formData.players[0].playerName}.
-											Please update as needed for this
+											<strong>
+												{formData.players[0].playerName}
+											</strong>
+											. Please update as needed for this
 											player.
 										</span>
 									)}
@@ -870,7 +841,7 @@ export const Registration = (): JSX.Element => {
 												<SelectValue placeholder="Select country" />
 											</SelectTrigger>
 											<SelectContent>
-												{countries.map((country) => (
+												{COUNTRIES.map((country) => (
 													<SelectItem
 														key={country}
 														value={country}
@@ -1056,7 +1027,7 @@ export const Registration = (): JSX.Element => {
 												<SelectValue placeholder="Select position" />
 											</SelectTrigger>
 											<SelectContent>
-												{positions.map((position) => (
+												{POSITIONS.map((position) => (
 													<SelectItem
 														key={position}
 														value={position}
