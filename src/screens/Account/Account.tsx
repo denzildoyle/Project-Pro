@@ -35,14 +35,14 @@ import {
 	Check,
 	AlertCircle,
 } from "lucide-react";
+import POSITIONS from "../../consts/positions";
+import COUNTRIES from "../../consts/countries";
 
 interface UserAccountData {
 	// Parent information (editable)
-	parentName: string;
 	parentEmail: string;
 
 	// Player basic information (some read-only)
-	playerName: string; // Read-only
 	playerDateOfBirth: string; // Read-only
 	playerPhoto: string;
 	playerCity: string;
@@ -52,7 +52,6 @@ interface UserAccountData {
 	// Player sports information (editable)
 	playerPosition: string;
 	playerStrongFoot: string;
-	playerSportHistory: string;
 	preferredLocation: string;
 
 	// Personal details (editable)
@@ -74,9 +73,7 @@ interface PasswordChangeData {
 export const Account = (): JSX.Element => {
 	// Mock initial data - in real app, this would come from API
 	const [accountData, setAccountData] = useState<UserAccountData>({
-		parentName: "John Smith",
 		parentEmail: "john.smith@email.com",
-		playerName: "Michael Smith", // Read-only
 		playerDateOfBirth: "2010-05-15", // Read-only
 		playerPhoto: "",
 		playerCity: "Port of Spain",
@@ -84,8 +81,6 @@ export const Account = (): JSX.Element => {
 		playerCountry: "Trinidad and Tobago",
 		playerPosition: "Midfielder",
 		playerStrongFoot: "Right",
-		playerSportHistory:
-			"Played for school team for 2 years, attended summer football camp.",
 		preferredLocation: "Nelson Mandela Park Port of Spain",
 		hobbiesInterests: "Video games, reading, music",
 		ailmentsAllergies: "Mild asthma",
@@ -108,43 +103,6 @@ export const Account = (): JSX.Element => {
 		confirm: false,
 	});
 	const [successMessage, setSuccessMessage] = useState("");
-
-	// Static data
-	const positions = [
-		"Goalkeeper",
-		"Defender",
-		"Midfielder",
-		"Forward",
-		"Center Back",
-		"Full Back",
-		"Wing Back",
-		"Defensive Midfielder",
-		"Central Midfielder",
-		"Attacking Midfielder",
-		"Winger",
-		"Striker",
-	];
-
-	const countries = [
-		"Trinidad and Tobago",
-		"United States",
-		"Canada",
-		"United Kingdom",
-		"Brazil",
-		"Argentina",
-		"Germany",
-		"France",
-		"Spain",
-		"Italy",
-		"Netherlands",
-		"Portugal",
-		"Mexico",
-		"Jamaica",
-		"Barbados",
-		"Guyana",
-		"Suriname",
-	];
-
 	const strongFootOptions = ["Left", "Right", "Both"];
 	const tshirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
 	const preferredLocations = [
@@ -190,10 +148,6 @@ export const Account = (): JSX.Element => {
 
 	const validateAccountInfo = (): boolean => {
 		const newErrors: Record<string, string> = {};
-
-		if (!accountData.parentName.trim()) {
-			newErrors.parentName = "Parent name is required";
-		}
 
 		if (!accountData.parentEmail.trim()) {
 			newErrors.parentEmail = "Parent email is required";
@@ -430,37 +384,7 @@ export const Account = (): JSX.Element => {
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="space-y-4">
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div className="space-y-2">
-										<Label
-											htmlFor="parentName"
-											className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-										>
-											Parent Name *
-										</Label>
-										<Input
-											id="parentName"
-											type="text"
-											value={accountData.parentName}
-											onChange={(e) =>
-												handleAccountDataChange(
-													"parentName",
-													e.target.value
-												)
-											}
-											className={`font-['Manrope',Helvetica] ${
-												errors.parentName
-													? "border-red-500"
-													: ""
-											}`}
-										/>
-										{errors.parentName && (
-											<p className="text-sm text-red-500 font-['Manrope',Helvetica]">
-												{errors.parentName}
-											</p>
-										)}
-									</div>
-
+								<div className="grid grid-cols-1">
 									<div className="space-y-2">
 										<Label
 											htmlFor="parentEmail"
@@ -515,14 +439,6 @@ export const Account = (): JSX.Element => {
 										Player Identity (Cannot be changed)
 									</h4>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div>
-											<Label className="font-['Manrope',Helvetica] font-medium text-[#111416] text-sm">
-												Player Name
-											</Label>
-											<p className="mt-1 text-[#60758a] font-['Manrope',Helvetica]">
-												{accountData.playerName}
-											</p>
-										</div>
 										<div>
 											<Label className="font-['Manrope',Helvetica] font-medium text-[#111416] text-sm">
 												Date of Birth (Age:{" "}
@@ -598,7 +514,7 @@ export const Account = (): JSX.Element => {
 												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
-												{countries.map((country) => (
+												{COUNTRIES.map((country) => (
 													<SelectItem
 														key={country}
 														value={country}
@@ -737,7 +653,7 @@ export const Account = (): JSX.Element => {
 												<SelectValue placeholder="Select position" />
 											</SelectTrigger>
 											<SelectContent>
-												{positions.map((position) => (
+												{POSITIONS.map((position) => (
 													<SelectItem
 														key={position}
 														value={position}
@@ -795,28 +711,6 @@ export const Account = (): JSX.Element => {
 											{errors.preferredLocation}
 										</p>
 									)}
-								</div>
-
-								<div className="space-y-2">
-									<Label
-										htmlFor="playerSportHistory"
-										className="font-['Manrope',Helvetica] font-medium text-[#111416]"
-									>
-										Football History (Optional)
-									</Label>
-									<Textarea
-										id="playerSportHistory"
-										value={accountData.playerSportHistory}
-										onChange={(e) =>
-											handleAccountDataChange(
-												"playerSportHistory",
-												e.target.value
-											)
-										}
-										placeholder="Tell us about the player's football experience"
-										className="font-['Manrope',Helvetica] min-h-[100px]"
-										rows={4}
-									/>
 								</div>
 							</CardContent>
 						</Card>
