@@ -12,7 +12,6 @@ import {
 import { Badge } from "../../components/ui/badge";
 import {
 	Card,
-	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
@@ -20,7 +19,6 @@ import {
 import {
 	Search,
 	Bell,
-	Calendar,
 	Users,
 	Target,
 	BookOpen,
@@ -28,8 +26,7 @@ import {
 	Clock,
 	CheckCircle,
 	Circle,
-	Filter,
-	MarkAsUnreadIcon,
+	TrafficCone,
 } from "lucide-react";
 
 interface Notification {
@@ -39,7 +36,6 @@ interface Notification {
 	message: string;
 	timestamp: string;
 	isRead: boolean;
-	priority: "high" | "medium" | "low";
 	actionUrl: string;
 	relatedEntity?: string;
 }
@@ -53,7 +49,6 @@ const notificationsData: Notification[] = [
 		message: "Match against Eagles FC scheduled for tomorrow at 3:00 PM at Home Stadium",
 		timestamp: "2024-08-26T14:30:00Z",
 		isRead: false,
-		priority: "high",
 		actionUrl: "/matches/123",
 		relatedEntity: "Eagles FC vs Lions FC"
 	},
@@ -64,9 +59,8 @@ const notificationsData: Notification[] = [
 		message: "Monthly evaluations for 5 players are ready for your review",
 		timestamp: "2024-08-26T09:15:00Z",
 		isRead: false,
-		priority: "medium",
 		actionUrl: "/evaluations",
-		relatedEntity: "5 players"
+		relatedEntity: "Player Name"
 	},
 	{
 		id: 3,
@@ -75,7 +69,6 @@ const notificationsData: Notification[] = [
 		message: "Reminder: Training session scheduled for today at 6:00 PM - Field A",
 		timestamp: "2024-08-26T08:00:00Z",
 		isRead: true,
-		priority: "medium",
 		actionUrl: "/training/456",
 		relatedEntity: "Field A Training"
 	},
@@ -86,7 +79,6 @@ const notificationsData: Notification[] = [
 		message: "Coach Martinez added a new drill: 'Advanced Passing Combination'",
 		timestamp: "2024-08-25T16:45:00Z",
 		isRead: false,
-		priority: "low",
 		actionUrl: "/drills/789",
 		relatedEntity: "Advanced Passing Combination"
 	},
@@ -97,7 +89,6 @@ const notificationsData: Notification[] = [
 		message: "Alex Thompson has been added to the U15 squad",
 		timestamp: "2024-08-25T11:20:00Z",
 		isRead: true,
-		priority: "low",
 		actionUrl: "/players/101",
 		relatedEntity: "Alex Thompson - U15"
 	},
@@ -108,7 +99,6 @@ const notificationsData: Notification[] = [
 		message: "Match result vs Panthers FC has been updated with final scores",
 		timestamp: "2024-08-24T20:30:00Z",
 		isRead: true,
-		priority: "low",
 		actionUrl: "/matches/122",
 		relatedEntity: "Panthers FC vs Lions FC"
 	},
@@ -119,7 +109,6 @@ const notificationsData: Notification[] = [
 		message: "3 player evaluations are due by end of week",
 		timestamp: "2024-08-24T10:00:00Z",
 		isRead: false,
-		priority: "high",
 		actionUrl: "/evaluations",
 		relatedEntity: "3 pending evaluations"
 	},
@@ -130,7 +119,6 @@ const notificationsData: Notification[] = [
 		message: "Tomorrow's training session has been cancelled due to weather conditions",
 		timestamp: "2024-08-23T15:30:00Z",
 		isRead: true,
-		priority: "high",
 		actionUrl: "/training/457",
 		relatedEntity: "Weather Cancellation"
 	}
@@ -141,7 +129,6 @@ export const Notifications = (): JSX.Element => {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [filterType, setFilterType] = useState<string>("all");
 	const [filterStatus, setFilterStatus] = useState<string>("all");
-	const [filterPriority, setFilterPriority] = useState<string>("all");
 
 	// Handle notification click
 	const handleNotificationClick = (notification: Notification) => {
@@ -186,9 +173,8 @@ export const Notifications = (): JSX.Element => {
 			filterStatus === "all" || 
 			(filterStatus === "read" && notification.isRead) ||
 			(filterStatus === "unread" && !notification.isRead);
-		const matchesPriority = filterPriority === "all" || notification.priority === filterPriority;
 
-		return matchesSearch && matchesType && matchesStatus && matchesPriority;
+		return matchesSearch && matchesType && matchesStatus;
 	});
 
 	// Get notification type icon and color
@@ -201,7 +187,7 @@ export const Notifications = (): JSX.Element => {
 			case "evaluation":
 				return <BookOpen className="w-5 h-5" />;
 			case "drill":
-				return <Target className="w-5 h-5" />;
+				return <TrafficCone className="w-5 h-5" />;
 			case "player":
 				return <UserPlus className="w-5 h-5" />;
 			default:
@@ -221,19 +207,6 @@ export const Notifications = (): JSX.Element => {
 				return "bg-orange-100 text-orange-800";
 			case "player":
 				return "bg-cyan-100 text-cyan-800";
-			default:
-				return "bg-gray-100 text-gray-800";
-		}
-	};
-
-	const getPriorityColor = (priority: string) => {
-		switch (priority) {
-			case "high":
-				return "bg-red-100 text-red-800";
-			case "medium":
-				return "bg-yellow-100 text-yellow-800";
-			case "low":
-				return "bg-green-100 text-green-800";
 			default:
 				return "bg-gray-100 text-gray-800";
 		}
@@ -299,7 +272,7 @@ export const Notifications = (): JSX.Element => {
 							<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
 								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 									{/* Search */}
-									<div className="lg:col-span-2 relative">
+									<div className="lg:col-span-3 relative">
 										<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#60758a] w-4 h-4" />
 										<Input
 											placeholder="Search notifications..."
@@ -353,27 +326,6 @@ export const Notifications = (): JSX.Element => {
 											</SelectItem>
 										</SelectContent>
 									</Select>
-
-									{/* Priority Filter */}
-									<Select value={filterPriority} onValueChange={setFilterPriority}>
-										<SelectTrigger className="font-['Manrope',Helvetica]">
-											<SelectValue placeholder="Priority" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="all" className="font-['Manrope',Helvetica]">
-												All Priority
-											</SelectItem>
-											<SelectItem value="high" className="font-['Manrope',Helvetica]">
-												High
-											</SelectItem>
-											<SelectItem value="medium" className="font-['Manrope',Helvetica]">
-												Medium
-											</SelectItem>
-											<SelectItem value="low" className="font-['Manrope',Helvetica]">
-												Low
-											</SelectItem>
-										</SelectContent>
-									</Select>
 								</div>
 							</div>
 						</div>
@@ -411,19 +363,13 @@ export const Notifications = (): JSX.Element => {
 
 													{/* Content */}
 													<div className="flex-1 min-w-0">
-														<div className="flex items-start justify-between gap-2 mb-2">
+														<div className="flex items-start justify-between gap-2 mb-1">
 															<CardTitle className={`font-['Manrope',Helvetica] text-lg text-[#111418] line-clamp-1 ${
 																!notification.isRead ? 'font-bold' : 'font-semibold'
 															}`}>
 																{notification.title}
 															</CardTitle>
 															<div className="flex flex-col items-end gap-1 flex-shrink-0">
-																<Badge
-																	variant="secondary"
-																	className={`text-xs ${getPriorityColor(notification.priority)}`}
-																>
-																	{notification.priority}
-																</Badge>
 																<div className="flex items-center gap-1 text-xs text-[#60758a] font-['Manrope',Helvetica]">
 																	<Clock className="w-3 h-3" />
 																	{formatTimestamp(notification.timestamp)}
@@ -431,7 +377,7 @@ export const Notifications = (): JSX.Element => {
 															</div>
 														</div>
 
-														<CardDescription className={`font-['Manrope',Helvetica] text-[#607589] line-clamp-2 mb-2 ${
+														<CardDescription className={`font-['Manrope',Helvetica] text-[#607589] line-clamp-2 mb-4 ${
 															!notification.isRead ? 'text-[#111418]' : ''
 														}`}>
 															{notification.message}
