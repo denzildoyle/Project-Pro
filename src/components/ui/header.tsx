@@ -11,9 +11,10 @@ import { UserDropdown } from "./dropdown-menu";
 
 interface HeaderProps {
 	role: "coach" | "parent" | "public";
+	notificationCount?: number;
 }
 
-export const Header = ({ role }: HeaderProps): JSX.Element => {
+export const Header = ({ role, notificationCount = 0 }: HeaderProps): JSX.Element => {
 	const coachMenu = [
 		{ label: "Players", href: "/" },
 		{ label: "Training", href: "/training" },
@@ -87,13 +88,23 @@ export const Header = ({ role }: HeaderProps): JSX.Element => {
 						</NavigationMenuList>
 					</NavigationMenu>
 
-					{/* Notification Button */}
-					<Button
-						variant="secondary"
-						className="flex max-w-[480px] items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f0f2f5] text-[#111418] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#e4e7ea]"
-					>
-						<Bell className="w-5 h-5" />
-					</Button>
+					{/* Notification Button with Badge */}
+					<div className="relative">
+						<a href="/notifications">
+							<Button
+								variant="secondary"
+								className="flex max-w-[480px] items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f0f2f5] text-[#111418] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#e4e7ea]"
+							>
+								<Bell className="w-5 h-5" />
+							</Button>
+						</a>
+						{/* Notification Badge */}
+						{notificationCount > 0 && (
+							<div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
+								{notificationCount > 99 ? '99+' : notificationCount}
+							</div>
+						)}
+					</div>
 
 					{/* User Avatar with Dropdown */}
 					<UserDropdown onLogout={handleLogout} />
