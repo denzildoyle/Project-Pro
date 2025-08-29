@@ -97,7 +97,7 @@ const notificationsData: Notification[] = [
 		type: "match",
 		title: "Match Result Updated",
 		message: "Match result vs Panthers FC has been updated with final scores",
-		timestamp: "2024-08-24T20:30:00Z",
+		timestamp: "2025-08-24T20:30:00Z",
 		isRead: true,
 		actionUrl: "/matches/122",
 		relatedEntity: "Panthers FC vs Lions FC"
@@ -107,7 +107,7 @@ const notificationsData: Notification[] = [
 		type: "evaluation",
 		title: "Evaluation Deadline Approaching",
 		message: "3 player evaluations are due by end of week",
-		timestamp: "2024-08-24T10:00:00Z",
+		timestamp: "2025-08-24T10:00:00Z",
 		isRead: false,
 		actionUrl: "/evaluations",
 		relatedEntity: "3 pending evaluations"
@@ -117,7 +117,7 @@ const notificationsData: Notification[] = [
 		type: "training",
 		title: "Training Cancelled",
 		message: "Tomorrow's training session has been cancelled due to weather conditions",
-		timestamp: "2024-08-23T15:30:00Z",
+		timestamp: "2025-08-23T15:30:00Z",
 		isRead: true,
 		actionUrl: "/training/457",
 		relatedEntity: "Weather Cancellation"
@@ -216,16 +216,26 @@ export const Notifications = (): JSX.Element => {
 	const formatTimestamp = (timestamp: string) => {
 		const date = new Date(timestamp);
 		const now = new Date();
-		const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-		
+		const diffMs = now.getTime() - date.getTime();
+		const diffInMinutes = Math.floor(diffMs / (1000 * 60));
+		const diffInHours = Math.floor(diffMs / (1000 * 60 * 60));
+		const diffInDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+		const diffInWeeks = Math.floor(diffInDays / 7);
+		const diffInMonths = Math.floor(diffInDays / 30);
+		const diffInYears = Math.floor(diffInMonths / 12);
+
 		if (diffInHours < 1) {
-			const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-			return `${diffInMinutes}m ago`;
+			return `${diffInMinutes} min ago`;
 		} else if (diffInHours < 24) {
-			return `${diffInHours}h ago`;
+			return `${diffInHours} hr ago`;
+		} else if (diffInDays < 7) {
+			return `${diffInDays} day ago`;
+		} else if (diffInWeeks < 4) {
+			return `${diffInWeeks} wks ago`;
+		} else if (diffInMonths < 12) {
+			return `${diffInMonths} mth ago`;
 		} else {
-			const diffInDays = Math.floor(diffInHours / 24);
-			return `${diffInDays}d ago`;
+			return `${diffInYears} yr ago`;
 		}
 	};
 
