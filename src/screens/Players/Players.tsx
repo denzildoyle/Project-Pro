@@ -13,7 +13,7 @@ interface Player {
 	photo: string;
 }
 
-export const StitchDesign = (): JSX.Element => {
+export const Players = (): JSX.Element => {
 	const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false);
 	const [players, setPlayers] = useState<Player[]>([
 		{
@@ -107,23 +107,11 @@ export const StitchDesign = (): JSX.Element => {
 	};
 
 	return (
-		<div className="flex flex-col bg-white w-full min-h-screen">
-			<div className="flex flex-col flex-1 w-full bg-white">
-				<div className="flex flex-col w-full">
-					<Header role="coach" />
-					<div className="flex justify-center px-4 sm:px-8 md:px-16 lg:px-40 py-5 w-full">
-						<div className="flex flex-col w-full">
-							<PlayerListHeaderSection
-								onAddPlayer={() =>
-									setIsAddPlayerModalOpen(true)
-								}
-							/>
-							<PlayerTableSection players={players} />
-						</div>
-					</div>
-				</div>
-			</div>
-
+		<div>
+			<PlayerListHeaderSection
+				onAddPlayer={() => setIsAddPlayerModalOpen(true)}
+			/>
+			<PlayerTableSection players={players} />
 			<AddPlayerModal
 				isOpen={isAddPlayerModalOpen}
 				onClose={() => setIsAddPlayerModalOpen(false)}

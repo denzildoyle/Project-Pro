@@ -483,249 +483,209 @@ export const Training = ({
 		.slice(0, 6);
 
 	return (
-		<div className="relative flex size-full min-h-screen flex-col bg-slate-50 overflow-x-hidden font-['Manrope','Noto_Sans',sans-serif]">
-			<div className="layout-container flex h-full grow flex-col">
-				<Header role="coach" />
+		<div>
+			{/* Main Content */}
+			<div className="flex flex-wrap justify-between gap-3 p-4">
+				<div className="flex min-w-72 flex-col gap-3">
+					<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
+						Training Schedule
+					</p>
+					<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
+						View and manage training sessions across all age groups
+					</p>
+				</div>
 
-				{/* Main Content */}
-				<div className="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-5">
-					<div className="layout-content-container flex flex-col max-w-[1200px] flex-1">
-						{/* Header Section */}
-						<div className="flex flex-wrap justify-between gap-3 p-4">
-							<div className="flex min-w-72 flex-col gap-3">
-								<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
-									Training Schedule
-								</p>
-								<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
-									View and manage training sessions across all
-									age groups
-								</p>
-							</div>
+				<div className="flex gap-3 items-center">
+					{/* Age Group Filter */}
+					<div className="flex items-center gap-2">
+						<Filter className="w-4 h-4 text-[#60758a]" />
+						<Select
+							value={ageFilter}
+							onValueChange={handleAgeFilterChange}
+						>
+							<SelectTrigger className="w-[140px] font-['Manrope',Helvetica] border-[#dbe0e5]">
+								<SelectValue placeholder="All Ages" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">All Ages</SelectItem>
+								{getUniqueAgeGroups().map((ageGroup) => (
+									<SelectItem key={ageGroup} value={ageGroup}>
+										{ageGroup}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 
-							<div className="flex gap-3 items-center">
-								{/* Age Group Filter */}
-								<div className="flex items-center gap-2">
-									<Filter className="w-4 h-4 text-[#60758a]" />
-									<Select
-										value={ageFilter}
-										onValueChange={handleAgeFilterChange}
-									>
-										<SelectTrigger className="w-[140px] font-['Manrope',Helvetica] border-[#dbe0e5]">
-											<SelectValue placeholder="All Ages" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="all">
-												All Ages
-											</SelectItem>
-											{getUniqueAgeGroups().map(
-												(ageGroup) => (
-													<SelectItem
-														key={ageGroup}
-														value={ageGroup}
-													>
-														{ageGroup}
-													</SelectItem>
-												)
-											)}
-										</SelectContent>
-									</Select>
-								</div>
+					{role === "coach" && (
+						<Button
+							onClick={handleAddTraining}
+							className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+						>
+							<Plus className="w-4 h-4 mr-2" />
+							Add Training
+						</Button>
+					)}
+				</div>
+			</div>
 
-								{role === "coach" && (
-									<Button
-										onClick={handleAddTraining}
-										className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
-									>
-										<Plus className="w-4 h-4 mr-2" />
-										Add Training
-									</Button>
-								)}
-							</div>
-						</div>
+			{/* Active Filter Display */}
+			{ageFilter !== "all" && (
+				<div className="px-4 pb-2">
+					<div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-['Manrope',Helvetica]">
+						<Filter className="w-3 h-3" />
+						Showing sessions for {ageFilter}
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => handleAgeFilterChange("all")}
+							className="h-auto p-0 text-blue-700 hover:text-blue-900 font-['Manrope',Helvetica] text-xs"
+						>
+							Clear filter
+						</Button>
+					</div>
+				</div>
+			)}
 
-						{/* Active Filter Display */}
-						{ageFilter !== "all" && (
-							<div className="px-4 pb-2">
-								<div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-['Manrope',Helvetica]">
-									<Filter className="w-3 h-3" />
-									Showing sessions for {ageFilter}
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() =>
-											handleAgeFilterChange("all")
-										}
-										className="h-auto p-0 text-blue-700 hover:text-blue-900 font-['Manrope',Helvetica] text-xs"
-									>
-										Clear filter
-									</Button>
-								</div>
-							</div>
-						)}
-
-						{/* Calendar and Sessions Layout */}
-						<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
-							{/* Calendar Section */}
-							<div className="lg:col-span-2">
-								<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
-									<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
-										Training Calendar
-										{ageFilter !== "all" && (
-											<span className="text-sm font-normal text-[#60758a] ml-2">
-												({ageFilter} sessions)
-											</span>
-										)}
-									</h3>
-									<div className="training-calendar">
-										<Calendar
-											onChange={setSelectedDate}
-											value={selectedDate}
-											onClickDay={handleDateClick}
-											tileContent={tileContent}
-											tileClassName={tileClassName}
-											className="w-full border-none"
-										/>
-									</div>
-								</div>
-							</div>
-
-							{/* Sessions List */}
-							<div className="lg:col-span-1">
-								<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
-									<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
-										{selectedDate
-											? `Sessions for ${selectedDate.toLocaleDateString()}`
-											: "Select a Date"}
-									</h3>
-
-									{selectedDateSessions.length > 0 ? (
-										<div className="space-y-3">
-											{selectedDateSessions.map(
-												(session) => (
-													<div
-														key={session.id}
-														onClick={() =>
-															handleTrainingClick(
-																session
-															)
-														}
-														className="p-3 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-													>
-														<div className="flex justify-between items-start mb-2">
-															<h4 className="font-medium text-[#111418] text-sm font-['Manrope',Helvetica]">
-																{session.type}
-															</h4>
-															<Badge
-																variant="secondary"
-																className={`text-xs ${getStatusColor(
-																	session.status
-																)}`}
-															>
-																{session.status}
-															</Badge>
-														</div>
-														<div className="space-y-1 text-xs text-[#60758a] font-['Manrope',Helvetica]">
-															<div className="flex items-center gap-1">
-																<Clock className="w-3 h-3" />
-																{session.time}
-															</div>
-															<div className="flex items-center gap-1">
-																<Users className="w-3 h-3" />
-																{
-																	session.ageGroup
-																}
-															</div>
-															<div className="flex items-center gap-1">
-																<MapPin className="w-3 h-3" />
-																{
-																	session.location
-																}
-															</div>
-														</div>
-													</div>
-												)
-											)}
-										</div>
-									) : (
-										<p className="text-[#60758a] text-sm font-['Manrope',Helvetica]">
-											No{" "}
-											{ageFilter !== "all"
-												? `${ageFilter} `
-												: ""}
-											training sessions scheduled for this
-											date.
-										</p>
-									)}
-								</div>
-							</div>
-						</div>
-
-						{/* Upcoming Sessions */}
-						<div className="p-4">
-							<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
-								<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
-									{ageFilter === "all"
-										? "Training Sessions for Upcoming Week"
-										: `Upcoming ${ageFilter} Training Sessions`}
-								</h3>
-
-								{filteredUpcomingSessions.length > 0 ? (
-									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-										{filteredUpcomingSessions.map(
-											(session) => (
-												<div
-													key={session.id}
-													onClick={() =>
-														handleTrainingClick(
-															session
-														)
-													}
-													className="p-4 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-												>
-													<div className="flex justify-between items-start mb-3">
-														<h4 className="font-medium text-[#111418] font-['Manrope',Helvetica]">
-															{session.type}
-														</h4>
-														<Badge
-															variant="secondary"
-															className="text-xs"
-														>
-															{session.ageGroup}
-														</Badge>
-													</div>
-													<div className="space-y-2 text-sm text-[#60758a] font-['Manrope',Helvetica]">
-														<div className="flex items-center gap-2">
-															<CalendarIcon className="w-4 h-4" />
-															{new Date(
-																session.date
-															).toLocaleDateString()}
-														</div>
-														<div className="flex items-center gap-2">
-															<Clock className="w-4 h-4" />
-															{session.time} (
-															{session.duration})
-														</div>
-														<div className="flex items-center gap-2">
-															<MapPin className="w-4 h-4" />
-															{session.location}
-														</div>
-													</div>
-												</div>
-											)
-										)}
-									</div>
-								) : (
-									<p className="text-[#60758a] text-sm font-['Manrope',Helvetica]">
-										No upcoming{" "}
-										{ageFilter !== "all"
-											? `${ageFilter} `
-											: ""}
-										training sessions scheduled.
-									</p>
-								)}
-							</div>
+			{/* Calendar and Sessions Layout */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
+				{/* Calendar Section */}
+				<div className="lg:col-span-2">
+					<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
+						<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
+							Training Calendar
+							{ageFilter !== "all" && (
+								<span className="text-sm font-normal text-[#60758a] ml-2">
+									({ageFilter} sessions)
+								</span>
+							)}
+						</h3>
+						<div className="training-calendar">
+							<Calendar
+								onChange={setSelectedDate}
+								value={selectedDate}
+								onClickDay={handleDateClick}
+								tileContent={tileContent}
+								tileClassName={tileClassName}
+								className="w-full border-none"
+							/>
 						</div>
 					</div>
+				</div>
+
+				{/* Sessions List */}
+				<div className="lg:col-span-1">
+					<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
+						<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
+							{selectedDate
+								? `Sessions for ${selectedDate.toLocaleDateString()}`
+								: "Select a Date"}
+						</h3>
+
+						{selectedDateSessions.length > 0 ? (
+							<div className="space-y-3">
+								{selectedDateSessions.map((session) => (
+									<div
+										key={session.id}
+										onClick={() =>
+											handleTrainingClick(session)
+										}
+										className="p-3 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+									>
+										<div className="flex justify-between items-start mb-2">
+											<h4 className="font-medium text-[#111418] text-sm font-['Manrope',Helvetica]">
+												{session.type}
+											</h4>
+											<Badge
+												variant="secondary"
+												className={`text-xs ${getStatusColor(
+													session.status
+												)}`}
+											>
+												{session.status}
+											</Badge>
+										</div>
+										<div className="space-y-1 text-xs text-[#60758a] font-['Manrope',Helvetica]">
+											<div className="flex items-center gap-1">
+												<Clock className="w-3 h-3" />
+												{session.time}
+											</div>
+											<div className="flex items-center gap-1">
+												<Users className="w-3 h-3" />
+												{session.ageGroup}
+											</div>
+											<div className="flex items-center gap-1">
+												<MapPin className="w-3 h-3" />
+												{session.location}
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<p className="text-[#60758a] text-sm font-['Manrope',Helvetica]">
+								No {ageFilter !== "all" ? `${ageFilter} ` : ""}
+								training sessions scheduled for this date.
+							</p>
+						)}
+					</div>
+				</div>
+			</div>
+
+			{/* Upcoming Sessions */}
+			<div className="p-4">
+				<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
+					<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
+						{ageFilter === "all"
+							? "Training Sessions for Upcoming Week"
+							: `Upcoming ${ageFilter} Training Sessions`}
+					</h3>
+
+					{filteredUpcomingSessions.length > 0 ? (
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+							{filteredUpcomingSessions.map((session) => (
+								<div
+									key={session.id}
+									onClick={() => handleTrainingClick(session)}
+									className="p-4 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+								>
+									<div className="flex justify-between items-start mb-3">
+										<h4 className="font-medium text-[#111418] font-['Manrope',Helvetica]">
+											{session.type}
+										</h4>
+										<Badge
+											variant="secondary"
+											className="text-xs"
+										>
+											{session.ageGroup}
+										</Badge>
+									</div>
+									<div className="space-y-2 text-sm text-[#60758a] font-['Manrope',Helvetica]">
+										<div className="flex items-center gap-2">
+											<CalendarIcon className="w-4 h-4" />
+											{new Date(
+												session.date
+											).toLocaleDateString()}
+										</div>
+										<div className="flex items-center gap-2">
+											<Clock className="w-4 h-4" />
+											{session.time} ({session.duration})
+										</div>
+										<div className="flex items-center gap-2">
+											<MapPin className="w-4 h-4" />
+											{session.location}
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					) : (
+						<p className="text-[#60758a] text-sm font-['Manrope',Helvetica]">
+							No upcoming{" "}
+							{ageFilter !== "all" ? `${ageFilter} ` : ""}
+							training sessions scheduled.
+						</p>
+					)}
 				</div>
 			</div>
 

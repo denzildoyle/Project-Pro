@@ -512,259 +512,246 @@ export const Drills = (): JSX.Element => {
 	};
 
 	return (
-		<div className="relative flex size-full min-h-screen flex-col bg-slate-50 overflow-x-hidden font-['Manrope','Noto_Sans',sans-serif]">
-			<div className="layout-container flex h-full grow flex-col">
-				<Header role="coach" />
+		<div>
+			{/* Main Content */}
+			<div className="flex flex-wrap justify-between gap-3 p-4">
+				<div className="flex min-w-72 flex-col gap-3">
+					<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
+						Coaching Drills Library
+					</p>
+					<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
+						Comprehensive collection of training and assessment
+						drills for all age groups
+					</p>
+				</div>
+				<Button
+					onClick={handleAddDrill}
+					className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+				>
+					<Plus className="w-4 h-4 mr-2" />
+					Add Drill
+				</Button>
+			</div>
 
-				{/* Main Content */}
-				<div className="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-5">
-					<div className="layout-content-container flex flex-col max-w-[1200px] flex-1">
-						{/* Header Section */}
-						<div className="flex flex-wrap justify-between gap-3 p-4">
-							<div className="flex min-w-72 flex-col gap-3">
-								<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
-									Coaching Drills Library
-								</p>
-								<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
-									Comprehensive collection of training and
-									assessment drills for all age groups
-								</p>
-							</div>
-							<Button
-								onClick={handleAddDrill}
-								className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
-							>
-								<Plus className="w-4 h-4 mr-2" />
-								Add Drill
-							</Button>
+			{/* Search and Filters */}
+			<div className="p-4">
+				<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+						{/* Search */}
+						<div className="lg:col-span-2 relative">
+							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#60758a] w-4 h-4" />
+							<Input
+								placeholder="Search drills..."
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+								className="pl-10 font-['Manrope',Helvetica]"
+							/>
 						</div>
 
-						{/* Search and Filters */}
-						<div className="p-4">
-							<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
-								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-									{/* Search */}
-									<div className="lg:col-span-2 relative">
-										<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#60758a] w-4 h-4" />
-										<Input
-											placeholder="Search drills..."
-											value={searchTerm}
-											onChange={(e) =>
-												setSearchTerm(e.target.value)
-											}
-											className="pl-10 font-['Manrope',Helvetica]"
-										/>
-									</div>
+						{/* Type Filter */}
+						<Select
+							value={filterType}
+							onValueChange={(value: any) => setFilterType(value)}
+						>
+							<SelectTrigger className="font-['Manrope',Helvetica]">
+								<SelectValue placeholder="Drill Type" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									value="all"
+									className="font-['Manrope',Helvetica]"
+								>
+									All Types
+								</SelectItem>
+								<SelectItem
+									value="assessment"
+									className="font-['Manrope',Helvetica]"
+								>
+									Assessment
+								</SelectItem>
+								<SelectItem
+									value="training"
+									className="font-['Manrope',Helvetica]"
+								>
+									Training
+								</SelectItem>
+							</SelectContent>
+						</Select>
 
-									{/* Type Filter */}
-									<Select
-										value={filterType}
-										onValueChange={(value: any) =>
-											setFilterType(value)
-										}
-									>
-										<SelectTrigger className="font-['Manrope',Helvetica]">
-											<SelectValue placeholder="Drill Type" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem
-												value="all"
-												className="font-['Manrope',Helvetica]"
-											>
-												All Types
-											</SelectItem>
-											<SelectItem
-												value="assessment"
-												className="font-['Manrope',Helvetica]"
-											>
-												Assessment
-											</SelectItem>
-											<SelectItem
-												value="training"
-												className="font-['Manrope',Helvetica]"
-											>
-												Training
-											</SelectItem>
-										</SelectContent>
-									</Select>
+						{/* Age Group Filter */}
+						<Select
+							value={filterAgeGroup}
+							onValueChange={setFilterAgeGroup}
+						>
+							<SelectTrigger className="font-['Manrope',Helvetica]">
+								<SelectValue placeholder="Age Group" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									value="all"
+									className="font-['Manrope',Helvetica]"
+								>
+									All Ages
+								</SelectItem>
+								<SelectItem
+									value="U13"
+									className="font-['Manrope',Helvetica]"
+								>
+									U13
+								</SelectItem>
+								<SelectItem
+									value="U15"
+									className="font-['Manrope',Helvetica]"
+								>
+									U15
+								</SelectItem>
+								<SelectItem
+									value="U17"
+									className="font-['Manrope',Helvetica]"
+								>
+									U17
+								</SelectItem>
+							</SelectContent>
+						</Select>
 
-									{/* Age Group Filter */}
-									<Select
-										value={filterAgeGroup}
-										onValueChange={setFilterAgeGroup}
-									>
-										<SelectTrigger className="font-['Manrope',Helvetica]">
-											<SelectValue placeholder="Age Group" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem
-												value="all"
-												className="font-['Manrope',Helvetica]"
-											>
-												All Ages
-											</SelectItem>
-											<SelectItem
-												value="U13"
-												className="font-['Manrope',Helvetica]"
-											>
-												U13
-											</SelectItem>
-											<SelectItem
-												value="U15"
-												className="font-['Manrope',Helvetica]"
-											>
-												U15
-											</SelectItem>
-											<SelectItem
-												value="U17"
-												className="font-['Manrope',Helvetica]"
-											>
-												U17
-											</SelectItem>
-										</SelectContent>
-									</Select>
-
-									{/* Difficulty Filter */}
-									<Select
-										value={filterDifficulty}
-										onValueChange={setFilterDifficulty}
-									>
-										<SelectTrigger className="font-['Manrope',Helvetica]">
-											<SelectValue placeholder="Difficulty" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem
-												value="all"
-												className="font-['Manrope',Helvetica]"
-											>
-												All Levels
-											</SelectItem>
-											<SelectItem
-												value="Beginner"
-												className="font-['Manrope',Helvetica]"
-											>
-												Beginner
-											</SelectItem>
-											<SelectItem
-												value="Intermediate"
-												className="font-['Manrope',Helvetica]"
-											>
-												Intermediate
-											</SelectItem>
-											<SelectItem
-												value="Advanced"
-												className="font-['Manrope',Helvetica]"
-											>
-												Advanced
-											</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-							</div>
-						</div>
-
-						{/* Drills Grid */}
-						<div className="p-4">
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-								{filteredDrills.map((drill) => (
-									<Card
-										key={drill.id}
-										onClick={() => handleDrillClick(drill)}
-										className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border border-[#dbe0e5] bg-white"
-									>
-										<CardHeader className="pb-3">
-											<div className="flex justify-between items-start mb-2">
-												<CardTitle className="font-['Manrope',Helvetica] font-bold text-lg text-[#111418] line-clamp-2">
-													{drill.title}
-												</CardTitle>
-												<div className="flex flex-col gap-1">
-													<Badge
-														variant="secondary"
-														className={`text-xs ${getTypeColor(
-															drill.type
-														)}`}
-													>
-														{drill.type}
-													</Badge>
-													{drill.hasScoring && (
-														<Badge
-															variant="outline"
-															className="text-xs"
-														>
-															<Trophy className="w-3 h-3 mr-1" />
-															Scored
-														</Badge>
-													)}
-												</div>
-											</div>
-											<CardDescription className="font-['Manrope',Helvetica] text-[#607589] line-clamp-3">
-												{drill.description}
-											</CardDescription>
-										</CardHeader>
-										<CardContent className="pt-0">
-											<div className="space-y-3">
-												{/* Key Info */}
-												<div className="grid grid-cols-2 gap-2 text-sm">
-													<div className="flex items-center gap-1 text-[#60758a] font-['Manrope',Helvetica]">
-														<Users className="w-3 h-3" />
-														{drill.ageGroup}
-													</div>
-													<div className="flex items-center gap-1 text-[#60758a] font-['Manrope',Helvetica]">
-														<Clock className="w-3 h-3" />
-														{drill.duration}
-													</div>
-													<div className="flex items-center gap-1 text-[#60758a] font-['Manrope',Helvetica]">
-														<User className="w-3 h-3" />
-														{drill.numberOfPlayers}
-													</div>
-													<div className="flex items-center gap-1 text-[#60758a] font-['Manrope',Helvetica]">
-														<Ruler className="w-3 h-3" />
-														{drill.spaceRequired}
-													</div>
-												</div>
-
-												{/* Topic and Difficulty */}
-												<div className="flex justify-between items-center">
-													<Badge
-														variant="outline"
-														className="text-xs font-['Manrope',Helvetica]"
-													>
-														<BookOpen className="w-3 h-3 mr-1" />
-														{drill.topic}
-													</Badge>
-													<Badge
-														variant="secondary"
-														className={`text-xs ${getDifficultyColor(
-															drill.difficulty
-														)}`}
-													>
-														{drill.difficulty}
-													</Badge>
-												</div>
-
-												{/* Coach */}
-												<div className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
-													Coach: {drill.coach}
-												</div>
-											</div>
-										</CardContent>
-									</Card>
-								))}
-							</div>
-
-							{filteredDrills.length === 0 && (
-								<div className="text-center py-12">
-									<p className="text-[#60758a] text-lg font-['Manrope',Helvetica]">
-										No drills found matching your criteria.
-									</p>
-									<p className="text-[#60758a] text-sm font-['Manrope',Helvetica] mt-2">
-										Try adjusting your search or filters.
-									</p>
-								</div>
-							)}
-						</div>
+						{/* Difficulty Filter */}
+						<Select
+							value={filterDifficulty}
+							onValueChange={setFilterDifficulty}
+						>
+							<SelectTrigger className="font-['Manrope',Helvetica]">
+								<SelectValue placeholder="Difficulty" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									value="all"
+									className="font-['Manrope',Helvetica]"
+								>
+									All Levels
+								</SelectItem>
+								<SelectItem
+									value="Beginner"
+									className="font-['Manrope',Helvetica]"
+								>
+									Beginner
+								</SelectItem>
+								<SelectItem
+									value="Intermediate"
+									className="font-['Manrope',Helvetica]"
+								>
+									Intermediate
+								</SelectItem>
+								<SelectItem
+									value="Advanced"
+									className="font-['Manrope',Helvetica]"
+								>
+									Advanced
+								</SelectItem>
+							</SelectContent>
+						</Select>
 					</div>
 				</div>
+			</div>
+
+			{/* Drills Grid */}
+			<div className="p-4">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+					{filteredDrills.map((drill) => (
+						<Card
+							key={drill.id}
+							onClick={() => handleDrillClick(drill)}
+							className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border border-[#dbe0e5] bg-white"
+						>
+							<CardHeader className="pb-3">
+								<div className="flex justify-between items-start mb-2">
+									<CardTitle className="font-['Manrope',Helvetica] font-bold text-lg text-[#111418] line-clamp-2">
+										{drill.title}
+									</CardTitle>
+									<div className="flex flex-col gap-1">
+										<Badge
+											variant="secondary"
+											className={`text-xs ${getTypeColor(
+												drill.type
+											)}`}
+										>
+											{drill.type}
+										</Badge>
+										{drill.hasScoring && (
+											<Badge
+												variant="outline"
+												className="text-xs"
+											>
+												<Trophy className="w-3 h-3 mr-1" />
+												Scored
+											</Badge>
+										)}
+									</div>
+								</div>
+								<CardDescription className="font-['Manrope',Helvetica] text-[#607589] line-clamp-3">
+									{drill.description}
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="pt-0">
+								<div className="space-y-3">
+									{/* Key Info */}
+									<div className="grid grid-cols-2 gap-2 text-sm">
+										<div className="flex items-center gap-1 text-[#60758a] font-['Manrope',Helvetica]">
+											<Users className="w-3 h-3" />
+											{drill.ageGroup}
+										</div>
+										<div className="flex items-center gap-1 text-[#60758a] font-['Manrope',Helvetica]">
+											<Clock className="w-3 h-3" />
+											{drill.duration}
+										</div>
+										<div className="flex items-center gap-1 text-[#60758a] font-['Manrope',Helvetica]">
+											<User className="w-3 h-3" />
+											{drill.numberOfPlayers}
+										</div>
+										<div className="flex items-center gap-1 text-[#60758a] font-['Manrope',Helvetica]">
+											<Ruler className="w-3 h-3" />
+											{drill.spaceRequired}
+										</div>
+									</div>
+
+									{/* Topic and Difficulty */}
+									<div className="flex justify-between items-center">
+										<Badge
+											variant="outline"
+											className="text-xs font-['Manrope',Helvetica]"
+										>
+											<BookOpen className="w-3 h-3 mr-1" />
+											{drill.topic}
+										</Badge>
+										<Badge
+											variant="secondary"
+											className={`text-xs ${getDifficultyColor(
+												drill.difficulty
+											)}`}
+										>
+											{drill.difficulty}
+										</Badge>
+									</div>
+
+									{/* Coach */}
+									<div className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
+										Coach: {drill.coach}
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					))}
+				</div>
+
+				{filteredDrills.length === 0 && (
+					<div className="text-center py-12">
+						<p className="text-[#60758a] text-lg font-['Manrope',Helvetica]">
+							No drills found matching your criteria.
+						</p>
+						<p className="text-[#60758a] text-sm font-['Manrope',Helvetica] mt-2">
+							Try adjusting your search or filters.
+						</p>
+					</div>
+				)}
 			</div>
 
 			{/* Add Drill Modal */}

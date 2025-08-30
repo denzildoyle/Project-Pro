@@ -492,298 +492,254 @@ export const Matches = ({
 	const isEditMode = editingMatch !== null;
 
 	return (
-		<div className="relative flex size-full min-h-screen flex-col bg-slate-50 overflow-x-hidden font-['Manrope','Noto_Sans',sans-serif]">
-			<div className="layout-container flex h-full grow flex-col">
-				<Header role="coach" />
+		<div>
+			{/* Header Section */}
+			<div className="flex flex-wrap justify-between gap-3 p-4">
+				<div className="flex min-w-72 flex-col gap-3">
+					<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
+						Match Schedule
+					</p>
+					<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
+						View and manage matches across all age groups and
+						competitions
+					</p>
+				</div>
+				<div className="flex gap-3 items-center">
+					{/* Age Filter */}
+					<div className="flex items-center gap-2">
+						<Filter className="w-4 h-4 text-[#60758a]" />
+						<Select
+							value={ageFilter}
+							onValueChange={handleAgeFilterChange}
+						>
+							<SelectTrigger className="w-32 font-['Manrope',Helvetica] text-sm">
+								<SelectValue placeholder="Age Group" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">All Ages</SelectItem>
+								{ageGroups.map((ageGroup) => (
+									<SelectItem key={ageGroup} value={ageGroup}>
+										{ageGroup}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 
-				{/* Main Content */}
-				<div className="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-5">
-					<div className="layout-content-container flex flex-col max-w-[1200px] flex-1">
-						{/* Header Section */}
-						<div className="flex flex-wrap justify-between gap-3 p-4">
-							<div className="flex min-w-72 flex-col gap-3">
-								<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
-									Match Schedule
-								</p>
-								<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
-									View and manage matches across all age
-									groups and competitions
-								</p>
-							</div>
-							<div className="flex gap-3 items-center">
-								{/* Age Filter */}
-								<div className="flex items-center gap-2">
-									<Filter className="w-4 h-4 text-[#60758a]" />
-									<Select
-										value={ageFilter}
-										onValueChange={handleAgeFilterChange}
-									>
-										<SelectTrigger className="w-32 font-['Manrope',Helvetica] text-sm">
-											<SelectValue placeholder="Age Group" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="all">
-												All Ages
-											</SelectItem>
-											{ageGroups.map((ageGroup) => (
-												<SelectItem
-													key={ageGroup}
-													value={ageGroup}
-												>
-													{ageGroup}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
+					<Button
+						onClick={handleAddMatch}
+						className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
+					>
+						<Plus className="w-4 h-4 mr-2" />
+						Add Match
+					</Button>
+				</div>
+			</div>
 
-								<Button
-									onClick={handleAddMatch}
-									className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
-								>
-									<Plus className="w-4 h-4 mr-2" />
-									Add Match
-								</Button>
-							</div>
+			{/* Age Filter Status */}
+			{ageFilter !== "all" && (
+				<div className="px-4 pb-2">
+					<div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-['Manrope',Helvetica]">
+						<Filter className="w-3 h-3" />
+						Showing matches for {ageFilter}
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => handleAgeFilterChange("all")}
+							className="h-auto p-0 text-blue-700 hover:text-blue-900 font-['Manrope',Helvetica] text-xs"
+						>
+							Clear filter
+						</Button>
+					</div>
+				</div>
+			)}
+
+			{/* Calendar and Matches Layout */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
+				{/* Calendar Section */}
+				<div className="lg:col-span-2">
+					<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
+						<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
+							Match Calendar
+							{ageFilter !== "all" && (
+								<span className="text-sm font-normal text-[#60758a] ml-2">
+									({ageFilter} matches)
+								</span>
+							)}
+						</h3>
+						<div className="match-calendar">
+							<Calendar
+								onChange={setSelectedDate}
+								value={selectedDate}
+								onClickDay={handleDateClick}
+								tileContent={tileContent}
+								tileClassName={tileClassName}
+								className="w-full border-none"
+							/>
 						</div>
-
-						{/* Age Filter Status */}
-						{ageFilter !== "all" && (
-							<div className="px-4 pb-2">
-								<div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-['Manrope',Helvetica]">
-									<Filter className="w-3 h-3" />
-									Showing matches for {ageFilter}
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() =>
-											handleAgeFilterChange("all")
-										}
-										className="h-auto p-0 text-blue-700 hover:text-blue-900 font-['Manrope',Helvetica] text-xs"
-									>
-										Clear filter
-									</Button>
-								</div>
+						<div className="flex items-center gap-4 mt-4 text-xs text-[#60758a] font-['Manrope',Helvetica]">
+							<div className="flex items-center gap-1">
+								<div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+								<span>Scheduled</span>
 							</div>
-						)}
-
-						{/* Calendar and Matches Layout */}
-						<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
-							{/* Calendar Section */}
-							<div className="lg:col-span-2">
-								<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
-									<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
-										Match Calendar
-										{ageFilter !== "all" && (
-											<span className="text-sm font-normal text-[#60758a] ml-2">
-												({ageFilter} matches)
-											</span>
-										)}
-									</h3>
-									<div className="match-calendar">
-										<Calendar
-											onChange={setSelectedDate}
-											value={selectedDate}
-											onClickDay={handleDateClick}
-											tileContent={tileContent}
-											tileClassName={tileClassName}
-											className="w-full border-none"
-										/>
-									</div>
-									<div className="flex items-center gap-4 mt-4 text-xs text-[#60758a] font-['Manrope',Helvetica]">
-										<div className="flex items-center gap-1">
-											<div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-											<span>Scheduled</span>
-										</div>
-										<div className="flex items-center gap-1">
-											<div className="w-2 h-2 bg-red-500 rounded-full"></div>
-											<span>Live</span>
-										</div>
-										<div className="flex items-center gap-1">
-											<div className="w-2 h-2 bg-green-500 rounded-full"></div>
-											<span>Completed</span>
-										</div>
-									</div>
-								</div>
+							<div className="flex items-center gap-1">
+								<div className="w-2 h-2 bg-red-500 rounded-full"></div>
+								<span>Live</span>
 							</div>
-
-							{/* Matches List */}
-							<div className="lg:col-span-1">
-								<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
-									<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
-										{selectedDate
-											? `Matches for ${selectedDate.toLocaleDateString()}`
-											: "Select a Date"}
-									</h3>
-
-									{selectedDateMatches.length > 0 ? (
-										<div className="space-y-3">
-											{selectedDateMatches.map(
-												(match) => (
-													<div
-														key={match.id}
-														onClick={() =>
-															handleMatchClick(
-																match
-															)
-														}
-														className="p-3 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-													>
-														<div className="flex justify-between items-start mb-2">
-															<h4 className="font-medium text-[#111418] text-sm font-['Manrope',Helvetica]">
-																{match.homeTeam}{" "}
-																vs{" "}
-																{match.awayTeam}
-															</h4>
-															<Badge
-																variant="secondary"
-																className={`text-xs ${getStatusColor(
-																	match.status
-																)}`}
-															>
-																{match.status}
-															</Badge>
-														</div>
-														{match.status ===
-															"completed" &&
-															match.homeScore !==
-																undefined &&
-															match.awayScore !==
-																undefined && (
-																<div className="text-lg font-bold text-[#111418] mb-2 font-['Manrope',Helvetica]">
-																	{
-																		match.homeScore
-																	}{" "}
-																	-{" "}
-																	{
-																		match.awayScore
-																	}
-																</div>
-															)}
-														<div className="space-y-1 text-xs text-[#60758a] font-['Manrope',Helvetica]">
-															<div className="flex items-center gap-1">
-																<Clock className="w-3 h-3" />
-																{match.time}
-															</div>
-															<div className="flex items-center gap-1">
-																<Users className="w-3 h-3" />
-																{match.ageGroup}
-															</div>
-															<div className="flex items-center gap-1">
-																<MapPin className="w-3 h-3" />
-																{match.venue}
-															</div>
-															<div className="flex items-center gap-1">
-																<Trophy className="w-3 h-3" />
-																{
-																	match.competition
-																}
-															</div>
-														</div>
-													</div>
-												)
-											)}
-										</div>
-									) : (
-										<p className="text-[#60758a] text-sm font-['Manrope',Helvetica]">
-											{ageFilter !== "all"
-												? `No ${ageFilter} matches scheduled for this date.`
-												: "No matches scheduled for this date."}
-										</p>
-									)}
-								</div>
-							</div>
-						</div>
-
-						{/* Upcoming Matches */}
-						<div className="p-4">
-							<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
-								<div className="flex justify-between items-center mb-4">
-									<h3 className="text-lg font-semibold text-[#111418] font-['Manrope',Helvetica]">
-										Upcoming Matches
-										{ageFilter !== "all" && (
-											<span className="text-sm font-normal text-[#60758a] ml-2">
-												({ageFilter})
-											</span>
-										)}
-									</h3>
-									{ageFilter !== "all" && (
-										<Badge
-											variant="outline"
-											className="text-xs"
-										>
-											{
-												filteredMatches.filter(
-													(m) =>
-														m.status === "scheduled"
-												).length
-											}{" "}
-											matches
-										</Badge>
-									)}
-								</div>
-								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-									{filteredMatches
-										.filter(
-											(match) =>
-												match.status === "scheduled"
-										)
-										.slice(0, 6)
-										.map((match) => (
-											<div
-												key={match.id}
-												onClick={() =>
-													handleMatchClick(match)
-												}
-												className="p-4 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-											>
-												<div className="flex justify-between items-start mb-3">
-													<h4 className="font-medium text-[#111418] font-['Manrope',Helvetica] text-sm">
-														{match.homeTeam} vs{" "}
-														{match.awayTeam}
-													</h4>
-													<Badge
-														variant="secondary"
-														className="text-xs"
-													>
-														{match.ageGroup}
-													</Badge>
-												</div>
-												<div className="space-y-2 text-sm text-[#60758a] font-['Manrope',Helvetica]">
-													<div className="flex items-center gap-2">
-														<CalendarIcon className="w-4 h-4" />
-														{new Date(
-															match.date
-														).toLocaleDateString()}
-													</div>
-													<div className="flex items-center gap-2">
-														<Clock className="w-4 h-4" />
-														{match.time}
-													</div>
-													<div className="flex items-center gap-2">
-														<MapPin className="w-4 h-4" />
-														{match.venue}
-													</div>
-													<div className="flex items-center gap-2">
-														<Trophy className="w-4 h-4" />
-														{match.competition}
-													</div>
-												</div>
-											</div>
-										))}
-								</div>
-								{filteredMatches.filter(
-									(m) => m.status === "scheduled"
-								).length === 0 && (
-									<p className="text-[#60758a] text-sm font-['Manrope',Helvetica] text-center py-8">
-										{ageFilter !== "all"
-											? `No upcoming ${ageFilter} matches scheduled.`
-											: "No upcoming matches scheduled."}
-									</p>
-								)}
+							<div className="flex items-center gap-1">
+								<div className="w-2 h-2 bg-green-500 rounded-full"></div>
+								<span>Completed</span>
 							</div>
 						</div>
 					</div>
+				</div>
+
+				{/* Matches List */}
+				<div className="lg:col-span-1">
+					<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
+						<h3 className="text-lg font-semibold text-[#111418] mb-4 font-['Manrope',Helvetica]">
+							{selectedDate
+								? `Matches for ${selectedDate.toLocaleDateString()}`
+								: "Select a Date"}
+						</h3>
+
+						{selectedDateMatches.length > 0 ? (
+							<div className="space-y-3">
+								{selectedDateMatches.map((match) => (
+									<div
+										key={match.id}
+										onClick={() => handleMatchClick(match)}
+										className="p-3 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+									>
+										<div className="flex justify-between items-start mb-2">
+											<h4 className="font-medium text-[#111418] text-sm font-['Manrope',Helvetica]">
+												{match.homeTeam} vs{" "}
+												{match.awayTeam}
+											</h4>
+											<Badge
+												variant="secondary"
+												className={`text-xs ${getStatusColor(
+													match.status
+												)}`}
+											>
+												{match.status}
+											</Badge>
+										</div>
+										{match.status === "completed" &&
+											match.homeScore !== undefined &&
+											match.awayScore !== undefined && (
+												<div className="text-lg font-bold text-[#111418] mb-2 font-['Manrope',Helvetica]">
+													{match.homeScore} -{" "}
+													{match.awayScore}
+												</div>
+											)}
+										<div className="space-y-1 text-xs text-[#60758a] font-['Manrope',Helvetica]">
+											<div className="flex items-center gap-1">
+												<Clock className="w-3 h-3" />
+												{match.time}
+											</div>
+											<div className="flex items-center gap-1">
+												<Users className="w-3 h-3" />
+												{match.ageGroup}
+											</div>
+											<div className="flex items-center gap-1">
+												<MapPin className="w-3 h-3" />
+												{match.venue}
+											</div>
+											<div className="flex items-center gap-1">
+												<Trophy className="w-3 h-3" />
+												{match.competition}
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<p className="text-[#60758a] text-sm font-['Manrope',Helvetica]">
+								{ageFilter !== "all"
+									? `No ${ageFilter} matches scheduled for this date.`
+									: "No matches scheduled for this date."}
+							</p>
+						)}
+					</div>
+				</div>
+			</div>
+
+			{/* Upcoming Matches */}
+			<div className="p-4">
+				<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
+					<div className="flex justify-between items-center mb-4">
+						<h3 className="text-lg font-semibold text-[#111418] font-['Manrope',Helvetica]">
+							Upcoming Matches
+							{ageFilter !== "all" && (
+								<span className="text-sm font-normal text-[#60758a] ml-2">
+									({ageFilter})
+								</span>
+							)}
+						</h3>
+						{ageFilter !== "all" && (
+							<Badge variant="outline" className="text-xs">
+								{
+									filteredMatches.filter(
+										(m) => m.status === "scheduled"
+									).length
+								}{" "}
+								matches
+							</Badge>
+						)}
+					</div>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+						{filteredMatches
+							.filter((match) => match.status === "scheduled")
+							.slice(0, 6)
+							.map((match) => (
+								<div
+									key={match.id}
+									onClick={() => handleMatchClick(match)}
+									className="p-4 border border-[#e5e8ea] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+								>
+									<div className="flex justify-between items-start mb-3">
+										<h4 className="font-medium text-[#111418] font-['Manrope',Helvetica] text-sm">
+											{match.homeTeam} vs {match.awayTeam}
+										</h4>
+										<Badge
+											variant="secondary"
+											className="text-xs"
+										>
+											{match.ageGroup}
+										</Badge>
+									</div>
+									<div className="space-y-2 text-sm text-[#60758a] font-['Manrope',Helvetica]">
+										<div className="flex items-center gap-2">
+											<CalendarIcon className="w-4 h-4" />
+											{new Date(
+												match.date
+											).toLocaleDateString()}
+										</div>
+										<div className="flex items-center gap-2">
+											<Clock className="w-4 h-4" />
+											{match.time}
+										</div>
+										<div className="flex items-center gap-2">
+											<MapPin className="w-4 h-4" />
+											{match.venue}
+										</div>
+										<div className="flex items-center gap-2">
+											<Trophy className="w-4 h-4" />
+											{match.competition}
+										</div>
+									</div>
+								</div>
+							))}
+					</div>
+					{filteredMatches.filter((m) => m.status === "scheduled")
+						.length === 0 && (
+						<p className="text-[#60758a] text-sm font-['Manrope',Helvetica] text-center py-8">
+							{ageFilter !== "all"
+								? `No upcoming ${ageFilter} matches scheduled.`
+								: "No upcoming matches scheduled."}
+						</p>
+					)}
 				</div>
 			</div>
 

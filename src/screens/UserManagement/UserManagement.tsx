@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "../../components/ui/button";
-import { Header } from "../../components/ui/header";
 
 import {
 	Table,
@@ -63,65 +62,73 @@ export const UserManagement = (): JSX.Element => {
 	};
 
 	return (
-		<div className="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-5">
-			<div className="layout-content-container flex flex-col max-w-[1200px] flex-1">
-				<h2 className="text-2xl font-bold mb-4">User Management</h2>
-				<div className="bg-white rounded-lg border border-[#dbe0e5] overflow-x-auto">
-					<Table className="min-w-[600px]">
-						<TableHeader>
-							<TableRow>
-								<TableHead>Name</TableHead>
-								<TableHead>Email</TableHead>
-								<TableHead>Role</TableHead>
-								<TableHead>Status</TableHead>
-								<TableHead>Action</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{users.map((user) => (
-								<TableRow key={user.id}>
-									<TableCell>{user.name}</TableCell>
-									<TableCell>{user.email}</TableCell>
-									<TableCell>{user.role}</TableCell>
-									<TableCell>
-										<span
-											className={
-												user.status === "active"
-													? "text-green-600"
-													: "text-gray-400"
+		<div>
+			{/* Header */}
+			<div className="flex flex-wrap justify-between gap-3 p-4">
+				<div className="flex min-w-72 flex-col gap-3">
+					<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
+						User Management
+					</p>
+					<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
+						Manage users, roles, and permissions
+					</p>
+				</div>
+			</div>
+			<div className="bg-white rounded-lg border border-[#dbe0e5] overflow-x-auto">
+				<Table className="min-w-[600px]">
+					<TableHeader>
+						<TableRow>
+							<TableHead>Name</TableHead>
+							<TableHead>Email</TableHead>
+							<TableHead>Role</TableHead>
+							<TableHead>Status</TableHead>
+							<TableHead>Action</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{users.map((user) => (
+							<TableRow key={user.id}>
+								<TableCell>{user.name}</TableCell>
+								<TableCell>{user.email}</TableCell>
+								<TableCell>{user.role}</TableCell>
+								<TableCell>
+									<span
+										className={
+											user.status === "active"
+												? "text-green-600"
+												: "text-gray-400"
+										}
+									>
+										{user.status}
+									</span>
+								</TableCell>
+								<TableCell>
+									{user.status === "active" ? (
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() =>
+												handleDeactivate(user.id)
 											}
 										>
-											{user.status}
-										</span>
-									</TableCell>
-									<TableCell>
-										{user.status === "active" ? (
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() =>
-													handleDeactivate(user.id)
-												}
-											>
-												Deactivate
-											</Button>
-										) : (
-											<Button
-												variant="secondary"
-												size="sm"
-												onClick={() =>
-													handleActivate(user.id)
-												}
-											>
-												Activate
-											</Button>
-										)}
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
-				</div>
+											Deactivate
+										</Button>
+									) : (
+										<Button
+											variant="secondary"
+											size="sm"
+											onClick={() =>
+												handleActivate(user.id)
+											}
+										>
+											Activate
+										</Button>
+									)}
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
 			</div>
 		</div>
 	);

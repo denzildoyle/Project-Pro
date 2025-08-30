@@ -46,11 +46,12 @@ const notificationsData: Notification[] = [
 		id: 1,
 		type: "match",
 		title: "Upcoming Match Tomorrow",
-		message: "Match against Eagles FC scheduled for tomorrow at 3:00 PM at Home Stadium",
+		message:
+			"Match against Eagles FC scheduled for tomorrow at 3:00 PM at Home Stadium",
 		timestamp: "2024-08-26T14:30:00Z",
 		isRead: false,
 		actionUrl: "/matches/123",
-		relatedEntity: "Eagles FC vs Lions FC"
+		relatedEntity: "Eagles FC vs Lions FC",
 	},
 	{
 		id: 2,
@@ -60,27 +61,29 @@ const notificationsData: Notification[] = [
 		timestamp: "2024-08-26T09:15:00Z",
 		isRead: false,
 		actionUrl: "/evaluations",
-		relatedEntity: "Player Name"
+		relatedEntity: "Player Name",
 	},
 	{
 		id: 3,
 		type: "training",
 		title: "Training Session This Evening",
-		message: "Reminder: Training session scheduled for today at 6:00 PM - Field A",
+		message:
+			"Reminder: Training session scheduled for today at 6:00 PM - Field A",
 		timestamp: "2024-08-26T08:00:00Z",
 		isRead: true,
 		actionUrl: "/training/456",
-		relatedEntity: "Field A Training"
+		relatedEntity: "Field A Training",
 	},
 	{
 		id: 4,
 		type: "drill",
 		title: "New Drill Added",
-		message: "Coach Martinez added a new drill: 'Advanced Passing Combination'",
+		message:
+			"Coach Martinez added a new drill: 'Advanced Passing Combination'",
 		timestamp: "2024-08-25T16:45:00Z",
 		isRead: false,
 		actionUrl: "/drills/789",
-		relatedEntity: "Advanced Passing Combination"
+		relatedEntity: "Advanced Passing Combination",
 	},
 	{
 		id: 5,
@@ -90,17 +93,18 @@ const notificationsData: Notification[] = [
 		timestamp: "2024-08-25T11:20:00Z",
 		isRead: true,
 		actionUrl: "/players/101",
-		relatedEntity: "Alex Thompson - U15"
+		relatedEntity: "Alex Thompson - U15",
 	},
 	{
 		id: 6,
 		type: "match",
 		title: "Match Result Updated",
-		message: "Match result vs Panthers FC has been updated with final scores",
+		message:
+			"Match result vs Panthers FC has been updated with final scores",
 		timestamp: "2025-08-24T20:30:00Z",
 		isRead: true,
 		actionUrl: "/matches/122",
-		relatedEntity: "Panthers FC vs Lions FC"
+		relatedEntity: "Panthers FC vs Lions FC",
 	},
 	{
 		id: 7,
@@ -110,22 +114,24 @@ const notificationsData: Notification[] = [
 		timestamp: "2025-08-24T10:00:00Z",
 		isRead: false,
 		actionUrl: "/evaluations",
-		relatedEntity: "3 pending evaluations"
+		relatedEntity: "3 pending evaluations",
 	},
 	{
 		id: 8,
 		type: "training",
 		title: "Training Cancelled",
-		message: "Tomorrow's training session has been cancelled due to weather conditions",
+		message:
+			"Tomorrow's training session has been cancelled due to weather conditions",
 		timestamp: "2025-08-23T15:30:00Z",
 		isRead: true,
 		actionUrl: "/training/457",
-		relatedEntity: "Weather Cancellation"
-	}
+		relatedEntity: "Weather Cancellation",
+	},
 ];
 
 export const Notifications = (): JSX.Element => {
-	const [notifications, setNotifications] = useState<Notification[]>(notificationsData);
+	const [notifications, setNotifications] =
+		useState<Notification[]>(notificationsData);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [filterType, setFilterType] = useState<string>("all");
 	const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -133,12 +139,12 @@ export const Notifications = (): JSX.Element => {
 	// Handle notification click
 	const handleNotificationClick = (notification: Notification) => {
 		// Mark as read when clicked
-		setNotifications(prev => 
-			prev.map(n => 
+		setNotifications((prev) =>
+			prev.map((n) =>
 				n.id === notification.id ? { ...n, isRead: true } : n
 			)
 		);
-		
+
 		// In a real app, you would navigate to the actionUrl
 		console.log(`Navigating to: ${notification.actionUrl}`);
 		alert(`Navigating to: ${notification.relatedEntity}`);
@@ -147,30 +153,34 @@ export const Notifications = (): JSX.Element => {
 	// Toggle read status
 	const toggleReadStatus = (id: number, event: React.MouseEvent) => {
 		event.stopPropagation();
-		setNotifications(prev => 
-			prev.map(n => 
-				n.id === id ? { ...n, isRead: !n.isRead } : n
-			)
+		setNotifications((prev) =>
+			prev.map((n) => (n.id === id ? { ...n, isRead: !n.isRead } : n))
 		);
 	};
 
 	// Mark all as read
 	const markAllAsRead = () => {
-		setNotifications(prev => 
-			prev.map(n => ({ ...n, isRead: true }))
-		);
+		setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
 	};
 
 	// Filter notifications
 	const filteredNotifications = notifications.filter((notification) => {
-		const matchesSearch = 
-			notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			notification.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			(notification.relatedEntity?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+		const matchesSearch =
+			notification.title
+				.toLowerCase()
+				.includes(searchTerm.toLowerCase()) ||
+			notification.message
+				.toLowerCase()
+				.includes(searchTerm.toLowerCase()) ||
+			(notification.relatedEntity
+				?.toLowerCase()
+				.includes(searchTerm.toLowerCase()) ??
+				false);
 
-		const matchesType = filterType === "all" || notification.type === filterType;
-		const matchesStatus = 
-			filterStatus === "all" || 
+		const matchesType =
+			filterType === "all" || notification.type === filterType;
+		const matchesStatus =
+			filterStatus === "all" ||
 			(filterStatus === "read" && notification.isRead) ||
 			(filterStatus === "unread" && !notification.isRead);
 
@@ -239,196 +249,254 @@ export const Notifications = (): JSX.Element => {
 		}
 	};
 
-	const unreadCount = notifications.filter(n => !n.isRead).length;
+	const unreadCount = notifications.filter((n) => !n.isRead).length;
 
 	return (
-		<div className="relative flex size-full min-h-screen flex-col bg-slate-50 overflow-x-hidden font-['Manrope','Noto_Sans',sans-serif]">
-			<div className="layout-container flex h-full grow flex-col">
-				<Header role="coach" notificationCount={unreadCount} />
+		<div>
+			<div className="flex flex-wrap justify-between gap-3 p-4">
+				<div className="flex min-w-72 flex-col gap-3">
+					<div className="flex items-center gap-3">
+						<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
+							Notifications
+						</p>
+						{unreadCount > 0 && (
+							<Badge variant="destructive" className="text-sm">
+								{unreadCount} unread
+							</Badge>
+						)}
+					</div>
+					<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
+						Stay updated with matches, training sessions,
+						evaluations, and team updates
+					</p>
+				</div>
+				<Button
+					onClick={markAllAsRead}
+					variant="outline"
+					className="font-['Manrope',Helvetica] font-medium"
+					disabled={unreadCount === 0}
+				>
+					<CheckCircle className="w-4 h-4 mr-2" />
+					Mark All Read
+				</Button>
+			</div>
 
-				{/* Main Content */}
-				<div className="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-5">
-					<div className="layout-content-container flex flex-col max-w-[1200px] flex-1">
-						{/* Header Section */}
-						<div className="flex flex-wrap justify-between gap-3 p-4">
-							<div className="flex min-w-72 flex-col gap-3">
-								<div className="flex items-center gap-3">
-									<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
-										Notifications
-									</p>
-									{unreadCount > 0 && (
-										<Badge variant="destructive" className="text-sm">
-											{unreadCount} unread
-										</Badge>
-									)}
-								</div>
-								<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
-									Stay updated with matches, training sessions, evaluations, and team updates
-								</p>
-							</div>
-							<Button
-								onClick={markAllAsRead}
-								variant="outline"
-								className="font-['Manrope',Helvetica] font-medium"
-								disabled={unreadCount === 0}
-							>
-								<CheckCircle className="w-4 h-4 mr-2" />
-								Mark All Read
-							</Button>
+			{/* Search and Filters */}
+			<div className="p-4">
+				<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+						{/* Search */}
+						<div className="lg:col-span-3 relative">
+							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#60758a] w-4 h-4" />
+							<Input
+								placeholder="Search notifications..."
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+								className="pl-10 font-['Manrope',Helvetica]"
+							/>
 						</div>
 
-						{/* Search and Filters */}
-						<div className="p-4">
-							<div className="bg-white rounded-lg shadow-sm border border-[#dbe0e5] p-6">
-								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-									{/* Search */}
-									<div className="lg:col-span-3 relative">
-										<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#60758a] w-4 h-4" />
-										<Input
-											placeholder="Search notifications..."
-											value={searchTerm}
-											onChange={(e) => setSearchTerm(e.target.value)}
-											className="pl-10 font-['Manrope',Helvetica]"
-										/>
-									</div>
+						{/* Type Filter */}
+						<Select
+							value={filterType}
+							onValueChange={setFilterType}
+						>
+							<SelectTrigger className="font-['Manrope',Helvetica]">
+								<SelectValue placeholder="Type" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									value="all"
+									className="font-['Manrope',Helvetica]"
+								>
+									All Types
+								</SelectItem>
+								<SelectItem
+									value="match"
+									className="font-['Manrope',Helvetica]"
+								>
+									Matches
+								</SelectItem>
+								<SelectItem
+									value="training"
+									className="font-['Manrope',Helvetica]"
+								>
+									Training
+								</SelectItem>
+								<SelectItem
+									value="evaluation"
+									className="font-['Manrope',Helvetica]"
+								>
+									Evaluations
+								</SelectItem>
+								<SelectItem
+									value="drill"
+									className="font-['Manrope',Helvetica]"
+								>
+									Drills
+								</SelectItem>
+								<SelectItem
+									value="player"
+									className="font-['Manrope',Helvetica]"
+								>
+									Players
+								</SelectItem>
+							</SelectContent>
+						</Select>
 
-									{/* Type Filter */}
-									<Select value={filterType} onValueChange={setFilterType}>
-										<SelectTrigger className="font-['Manrope',Helvetica]">
-											<SelectValue placeholder="Type" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="all" className="font-['Manrope',Helvetica]">
-												All Types
-											</SelectItem>
-											<SelectItem value="match" className="font-['Manrope',Helvetica]">
-												Matches
-											</SelectItem>
-											<SelectItem value="training" className="font-['Manrope',Helvetica]">
-												Training
-											</SelectItem>
-											<SelectItem value="evaluation" className="font-['Manrope',Helvetica]">
-												Evaluations
-											</SelectItem>
-											<SelectItem value="drill" className="font-['Manrope',Helvetica]">
-												Drills
-											</SelectItem>
-											<SelectItem value="player" className="font-['Manrope',Helvetica]">
-												Players
-											</SelectItem>
-										</SelectContent>
-									</Select>
+						{/* Status Filter */}
+						<Select
+							value={filterStatus}
+							onValueChange={setFilterStatus}
+						>
+							<SelectTrigger className="font-['Manrope',Helvetica]">
+								<SelectValue placeholder="Status" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									value="all"
+									className="font-['Manrope',Helvetica]"
+								>
+									All Status
+								</SelectItem>
+								<SelectItem
+									value="unread"
+									className="font-['Manrope',Helvetica]"
+								>
+									Unread
+								</SelectItem>
+								<SelectItem
+									value="read"
+									className="font-['Manrope',Helvetica]"
+								>
+									Read
+								</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+				</div>
+			</div>
 
-									{/* Status Filter */}
-									<Select value={filterStatus} onValueChange={setFilterStatus}>
-										<SelectTrigger className="font-['Manrope',Helvetica]">
-											<SelectValue placeholder="Status" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="all" className="font-['Manrope',Helvetica]">
-												All Status
-											</SelectItem>
-											<SelectItem value="unread" className="font-['Manrope',Helvetica]">
-												Unread
-											</SelectItem>
-											<SelectItem value="read" className="font-['Manrope',Helvetica]">
-												Read
-											</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-							</div>
-						</div>
+			{/* Notifications List */}
+			<div className="p-4">
+				<div className="space-y-3">
+					{filteredNotifications.map((notification) => (
+						<Card
+							key={notification.id}
+							onClick={() =>
+								handleNotificationClick(notification)
+							}
+							className={`cursor-pointer hover:shadow-lg transition-all duration-200 border border-[#dbe0e5] ${
+								notification.isRead
+									? "bg-white"
+									: "bg-blue-50 border-blue-200"
+							}`}
+						>
+							<CardHeader className="pb-3">
+								<div className="flex items-start justify-between gap-4">
+									<div className="flex items-start gap-3 flex-1">
+										{/* Read/Unread Indicator */}
+										<button
+											onClick={(e) =>
+												toggleReadStatus(
+													notification.id,
+													e
+												)
+											}
+											className="mt-1 hover:bg-gray-100 rounded-full p-1 transition-colors"
+										>
+											{notification.isRead ? (
+												<Circle className="w-4 h-4 text-gray-400" />
+											) : (
+												<Circle className="w-4 h-4 text-blue-500 fill-blue-500" />
+											)}
+										</button>
 
-						{/* Notifications List */}
-						<div className="p-4">
-							<div className="space-y-3">
-								{filteredNotifications.map((notification) => (
-									<Card
-										key={notification.id}
-										onClick={() => handleNotificationClick(notification)}
-										className={`cursor-pointer hover:shadow-lg transition-all duration-200 border border-[#dbe0e5] ${
-											notification.isRead ? 'bg-white' : 'bg-blue-50 border-blue-200'
-										}`}
-									>
-										<CardHeader className="pb-3">
-											<div className="flex items-start justify-between gap-4">
-												<div className="flex items-start gap-3 flex-1">
-													{/* Read/Unread Indicator */}
-													<button
-														onClick={(e) => toggleReadStatus(notification.id, e)}
-														className="mt-1 hover:bg-gray-100 rounded-full p-1 transition-colors"
-													>
-														{notification.isRead ? (
-															<Circle className="w-4 h-4 text-gray-400" />
-														) : (
-															<Circle className="w-4 h-4 text-blue-500 fill-blue-500" />
+										{/* Notification Icon */}
+										<div
+											className={`p-2 rounded-lg ${getNotificationColor(
+												notification.type
+											)}`}
+										>
+											{getNotificationIcon(
+												notification.type
+											)}
+										</div>
+
+										{/* Content */}
+										<div className="flex-1 min-w-0">
+											<div className="flex items-start justify-between gap-2 mb-1">
+												<CardTitle
+													className={`font-['Manrope',Helvetica] text-lg text-[#111418] line-clamp-1 ${
+														!notification.isRead
+															? "font-bold"
+															: "font-semibold"
+													}`}
+												>
+													{notification.title}
+												</CardTitle>
+												<div className="flex flex-col items-end gap-1 flex-shrink-0">
+													<div className="flex items-center gap-1 text-xs text-[#60758a] font-['Manrope',Helvetica]">
+														<Clock className="w-3 h-3" />
+														{formatTimestamp(
+															notification.timestamp
 														)}
-													</button>
-
-													{/* Notification Icon */}
-													<div className={`p-2 rounded-lg ${getNotificationColor(notification.type)}`}>
-														{getNotificationIcon(notification.type)}
-													</div>
-
-													{/* Content */}
-													<div className="flex-1 min-w-0">
-														<div className="flex items-start justify-between gap-2 mb-1">
-															<CardTitle className={`font-['Manrope',Helvetica] text-lg text-[#111418] line-clamp-1 ${
-																!notification.isRead ? 'font-bold' : 'font-semibold'
-															}`}>
-																{notification.title}
-															</CardTitle>
-															<div className="flex flex-col items-end gap-1 flex-shrink-0">
-																<div className="flex items-center gap-1 text-xs text-[#60758a] font-['Manrope',Helvetica]">
-																	<Clock className="w-3 h-3" />
-																	{formatTimestamp(notification.timestamp)}
-																</div>
-															</div>
-														</div>
-
-														<CardDescription className={`font-['Manrope',Helvetica] text-[#607589] line-clamp-2 mb-4 ${
-															!notification.isRead ? 'text-[#111418]' : ''
-														}`}>
-															{notification.message}
-														</CardDescription>
-
-														{/* Type and Entity */}
-														<div className="flex items-center gap-2">
-															<Badge
-																variant="outline"
-																className={`text-xs ${getNotificationColor(notification.type)}`}
-															>
-																{notification.type.charAt(0).toUpperCase() + notification.type.slice(1)}
-															</Badge>
-															{notification.relatedEntity && (
-																<span className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
-																	{notification.relatedEntity}
-																</span>
-															)}
-														</div>
 													</div>
 												</div>
 											</div>
-										</CardHeader>
-									</Card>
-								))}
-							</div>
 
-							{filteredNotifications.length === 0 && (
-								<div className="text-center py-12">
-									<Bell className="w-16 h-16 text-[#60758a] mx-auto mb-4" />
-									<p className="text-[#60758a] text-lg font-['Manrope',Helvetica]">
-										No notifications found.
-									</p>
-									<p className="text-[#60758a] text-sm font-['Manrope',Helvetica] mt-2">
-										Try adjusting your search or filters.
-									</p>
+											<CardDescription
+												className={`font-['Manrope',Helvetica] text-[#607589] line-clamp-2 mb-4 ${
+													!notification.isRead
+														? "text-[#111418]"
+														: ""
+												}`}
+											>
+												{notification.message}
+											</CardDescription>
+
+											{/* Type and Entity */}
+											<div className="flex items-center gap-2">
+												<Badge
+													variant="outline"
+													className={`text-xs ${getNotificationColor(
+														notification.type
+													)}`}
+												>
+													{notification.type
+														.charAt(0)
+														.toUpperCase() +
+														notification.type.slice(
+															1
+														)}
+												</Badge>
+												{notification.relatedEntity && (
+													<span className="text-xs text-[#60758a] font-['Manrope',Helvetica]">
+														{
+															notification.relatedEntity
+														}
+													</span>
+												)}
+											</div>
+										</div>
+									</div>
 								</div>
-							)}
-						</div>
-					</div>
+							</CardHeader>
+						</Card>
+					))}
 				</div>
+
+				{filteredNotifications.length === 0 && (
+					<div className="text-center py-12">
+						<Bell className="w-16 h-16 text-[#60758a] mx-auto mb-4" />
+						<p className="text-[#60758a] text-lg font-['Manrope',Helvetica]">
+							No notifications found.
+						</p>
+						<p className="text-[#60758a] text-sm font-['Manrope',Helvetica] mt-2">
+							Try adjusting your search or filters.
+						</p>
+					</div>
+				)}
 			</div>
 		</div>
 	);

@@ -242,208 +242,199 @@ export const PlayerReport = (): JSX.Element => {
 	);
 
 	return (
-		<div className="relative flex size-full min-h-screen flex-col bg-slate-50 overflow-x-hidden font-['Manrope','Noto_Sans',sans-serif]">
-			<div className="layout-container flex h-full grow flex-col">
-				<Header role="coach" />
+		<div>
+			{/* Breadcrumb */}
+			<div className="flex flex-wrap gap-2 p-4">
+				<Link
+					to="/"
+					className="text-[#60758a] text-base font-medium leading-normal font-['Manrope',Helvetica] hover:text-blue-600 transition-colors"
+				>
+					Players
+				</Link>
+				<span className="text-[#60758a] text-base font-medium leading-normal font-['Manrope',Helvetica]">
+					/
+				</span>
+				<Link
+					to={`/player/${playerId}/assessment`}
+					className="text-[#60758a] text-base font-medium leading-normal font-['Manrope',Helvetica] hover:text-blue-600 transition-colors"
+				>
+					{player.name}
+				</Link>
+				<span className="text-[#60758a] text-base font-medium leading-normal font-['Manrope',Helvetica]">
+					/
+				</span>
+				<span className="text-[#111418] text-base font-medium leading-normal font-['Manrope',Helvetica]">
+					Report
+				</span>
+			</div>
 
-				{/* Main Content */}
-				<div className="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-5">
-					<div className="layout-content-container flex flex-col max-w-[900px] flex-1">
-						{/* Breadcrumb */}
-						<div className="flex flex-wrap gap-2 p-4">
-							<Link
-								to="/"
-								className="text-[#60758a] text-base font-medium leading-normal font-['Manrope',Helvetica] hover:text-blue-600 transition-colors"
-							>
-								Players
-							</Link>
-							<span className="text-[#60758a] text-base font-medium leading-normal font-['Manrope',Helvetica]">
-								/
+			{/* Main Report Container */}
+			<div className="bg-white p-10 shadow-lg rounded-xl mx-4">
+				{/* Header Image */}
+				<header className="mb-8">
+					<img
+						src="https://images.pexels.com/photos/274422/pexels-photo-274422.jpeg?auto=compress&cs=tinysrgb&w=800"
+						alt="Team players celebrating"
+						className="w-full h-auto rounded-lg mb-8"
+					/>
+					<h2 className="text-red-600 font-bold uppercase tracking-wider pb-2 border-b-4 border-red-600 mb-6 font-['Manrope',Helvetica]">
+						PERFORMANCE
+					</h2>
+				</header>
+
+				{/* Player Info Grid */}
+				<section className="grid grid-cols-3 gap-6 mb-8 text-center">
+					<div className="player-info-item">
+						<p className="text-xl font-bold text-gray-900 font-['Manrope',Helvetica]">
+							{player.name}
+						</p>
+						<h3 className="text-sm text-gray-600 font-['Manrope',Helvetica]">
+							CATEGORY{" "}
+							<span className="font-normal">
+								{player.category}
 							</span>
-							<Link
-								to={`/player/${playerId}/assessment`}
-								className="text-[#60758a] text-base font-medium leading-normal font-['Manrope',Helvetica] hover:text-blue-600 transition-colors"
-							>
-								{player.name}
-							</Link>
-							<span className="text-[#60758a] text-base font-medium leading-normal font-['Manrope',Helvetica]">
-								/
+						</h3>
+						<h3 className="text-sm text-gray-600 font-['Manrope',Helvetica]">
+							POSITION{" "}
+							<span className="font-normal">
+								{player.position}
 							</span>
-							<span className="text-[#111418] text-base font-medium leading-normal font-['Manrope',Helvetica]">
-								Report
-							</span>
-						</div>
-
-						{/* Main Report Container */}
-						<div className="bg-white p-10 shadow-lg rounded-xl mx-4">
-							{/* Header Image */}
-							<header className="mb-8">
-								<img
-									src="https://images.pexels.com/photos/274422/pexels-photo-274422.jpeg?auto=compress&cs=tinysrgb&w=800"
-									alt="Team players celebrating"
-									className="w-full h-auto rounded-lg mb-8"
-								/>
-								<h2 className="text-red-600 font-bold uppercase tracking-wider pb-2 border-b-4 border-red-600 mb-6 font-['Manrope',Helvetica]">
-									PERFORMANCE
-								</h2>
-							</header>
-
-							{/* Player Info Grid */}
-							<section className="grid grid-cols-3 gap-6 mb-8 text-center">
-								<div className="player-info-item">
-									<p className="text-xl font-bold text-gray-900 font-['Manrope',Helvetica]">
-										{player.name}
-									</p>
-									<h3 className="text-sm text-gray-600 font-['Manrope',Helvetica]">
-										CATEGORY{" "}
-										<span className="font-normal">
-											{player.category}
-										</span>
-									</h3>
-									<h3 className="text-sm text-gray-600 font-['Manrope',Helvetica]">
-										POSITION{" "}
-										<span className="font-normal">
-											{player.position}
-										</span>
-									</h3>
-								</div>
-								<div className="player-info-item">
-									<h3 className="text-sm text-gray-600 mb-1 font-['Manrope',Helvetica]">
-										P.A.R.I.S. RATE
-									</h3>
-									<div className="text-xl font-bold text-gray-900 font-['Manrope',Helvetica]">
-										{player.parisRate}
-									</div>
-								</div>
-								<div className="player-info-item">
-									<h3 className="text-sm text-gray-600 mb-1 font-['Manrope',Helvetica]">
-										GLOBAL RATE
-									</h3>
-									<div className="text-xl font-bold text-gray-900 font-['Manrope',Helvetica]">
-										{player.globalRate}
-									</div>
-									<div className="w-full bg-gray-300 rounded-full h-2 mt-2">
-										<div
-											className="bg-blue-600 h-2 rounded-full"
-											style={{
-												width: `${player.globalRate}%`,
-											}}
-										></div>
-									</div>
-								</div>
-							</section>
-
-							{/* Performance Grid */}
-							<main className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-								<div className="lg:col-span-1">
-									<RatingScale />
-								</div>
-								<div className="lg:col-span-2 flex flex-col items-end">
-									<img
-										src="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=200"
-										alt="Club logo"
-										className="w-20 h-auto mb-2"
-									/>
-									<p className="text-sm font-bold font-['Manrope',Helvetica]">
-										ACADEMY PRO
-									</p>
-									<p className="text-xs font-['Manrope',Helvetica]">
-										Paris
-									</p>
-								</div>
-							</main>
-
-							{/* Stats Grid */}
-							<section className="mt-8">
-								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-									<div>
-										<StatsCategory
-											title="TECHNIQUE"
-											stats={player.stats.technique}
-										/>
-										<StatsCategory
-											title="MENTAL"
-											stats={player.stats.mental}
-										/>
-									</div>
-									<div>
-										<StatsCategory
-											title="POSSESSION"
-											stats={player.stats.possession}
-										/>
-										<StatsCategory
-											title="TRANSITION"
-											stats={player.stats.transition}
-										/>
-										<StatsCategory
-											title="P.A.R.I.S."
-											stats={player.stats.paris}
-											isParisSection={true}
-										/>
-									</div>
-									<div>
-										<StatsCategory
-											title="PHYSICAL"
-											stats={player.stats.physical}
-										/>
-									</div>
-									<div>
-										<StatsCategory
-											title="PERCEPTION"
-											stats={player.stats.perception}
-										/>
-									</div>
-								</div>
-							</section>
-
-							{/* Chart and Player Image */}
-							<section className="flex flex-col lg:flex-row items-center justify-between mt-8 gap-8">
-								<div className="w-full lg:w-80 h-80">
-									<canvas ref={chartRef}></canvas>
-								</div>
-								<div className="text-right">
-									<img
-										src={player.photo}
-										alt="Player portrait"
-										className="max-w-48 rounded-lg"
-									/>
-								</div>
-							</section>
-
-							{/* General Comments */}
-							<section className="mt-8">
-								<h2 className="text-red-600 font-bold uppercase tracking-wider pb-2 border-b-4 border-red-600 mb-6 font-['Manrope',Helvetica]">
-									GENERAL COMMENTS
-								</h2>
-								<div className="bg-gray-100 p-6 rounded-lg mb-8">
-									<p className="text-gray-700 leading-relaxed font-['Manrope',Helvetica]">
-										{player.comments}
-									</p>
-								</div>
-							</section>
-
-							{/* Footer */}
-							<footer className="grid grid-cols-2 gap-8 pt-4 border-t border-gray-300">
-								<div>
-									<h4 className="text-xs text-gray-500 uppercase font-['Manrope',Helvetica]">
-										SESSION
-									</h4>
-									<p className="font-medium font-['Manrope',Helvetica]">
-										{player.session}
-									</p>
-								</div>
-								<div>
-									<h4 className="text-xs text-gray-500 uppercase font-['Manrope',Helvetica]">
-										COACH
-									</h4>
-									<p className="font-medium font-['Manrope',Helvetica]">
-										{player.coach}
-									</p>
-								</div>
-							</footer>
+						</h3>
+					</div>
+					<div className="player-info-item">
+						<h3 className="text-sm text-gray-600 mb-1 font-['Manrope',Helvetica]">
+							P.A.R.I.S. RATE
+						</h3>
+						<div className="text-xl font-bold text-gray-900 font-['Manrope',Helvetica]">
+							{player.parisRate}
 						</div>
 					</div>
-				</div>
+					<div className="player-info-item">
+						<h3 className="text-sm text-gray-600 mb-1 font-['Manrope',Helvetica]">
+							GLOBAL RATE
+						</h3>
+						<div className="text-xl font-bold text-gray-900 font-['Manrope',Helvetica]">
+							{player.globalRate}
+						</div>
+						<div className="w-full bg-gray-300 rounded-full h-2 mt-2">
+							<div
+								className="bg-blue-600 h-2 rounded-full"
+								style={{
+									width: `${player.globalRate}%`,
+								}}
+							></div>
+						</div>
+					</div>
+				</section>
+
+				{/* Performance Grid */}
+				<main className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+					<div className="lg:col-span-1">
+						<RatingScale />
+					</div>
+					<div className="lg:col-span-2 flex flex-col items-end">
+						<img
+							src="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=200"
+							alt="Club logo"
+							className="w-20 h-auto mb-2"
+						/>
+						<p className="text-sm font-bold font-['Manrope',Helvetica]">
+							ACADEMY PRO
+						</p>
+						<p className="text-xs font-['Manrope',Helvetica]">
+							Paris
+						</p>
+					</div>
+				</main>
+
+				{/* Stats Grid */}
+				<section className="mt-8">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+						<div>
+							<StatsCategory
+								title="TECHNIQUE"
+								stats={player.stats.technique}
+							/>
+							<StatsCategory
+								title="MENTAL"
+								stats={player.stats.mental}
+							/>
+						</div>
+						<div>
+							<StatsCategory
+								title="POSSESSION"
+								stats={player.stats.possession}
+							/>
+							<StatsCategory
+								title="TRANSITION"
+								stats={player.stats.transition}
+							/>
+							<StatsCategory
+								title="P.A.R.I.S."
+								stats={player.stats.paris}
+								isParisSection={true}
+							/>
+						</div>
+						<div>
+							<StatsCategory
+								title="PHYSICAL"
+								stats={player.stats.physical}
+							/>
+						</div>
+						<div>
+							<StatsCategory
+								title="PERCEPTION"
+								stats={player.stats.perception}
+							/>
+						</div>
+					</div>
+				</section>
+
+				{/* Chart and Player Image */}
+				<section className="flex flex-col lg:flex-row items-center justify-between mt-8 gap-8">
+					<div className="w-full lg:w-80 h-80">
+						<canvas ref={chartRef}></canvas>
+					</div>
+					<div className="text-right">
+						<img
+							src={player.photo}
+							alt="Player portrait"
+							className="max-w-48 rounded-lg"
+						/>
+					</div>
+				</section>
+
+				{/* General Comments */}
+				<section className="mt-8">
+					<h2 className="text-red-600 font-bold uppercase tracking-wider pb-2 border-b-4 border-red-600 mb-6 font-['Manrope',Helvetica]">
+						GENERAL COMMENTS
+					</h2>
+					<div className="bg-gray-100 p-6 rounded-lg mb-8">
+						<p className="text-gray-700 leading-relaxed font-['Manrope',Helvetica]">
+							{player.comments}
+						</p>
+					</div>
+				</section>
+
+				{/* Footer */}
+				<footer className="grid grid-cols-2 gap-8 pt-4 border-t border-gray-300">
+					<div>
+						<h4 className="text-xs text-gray-500 uppercase font-['Manrope',Helvetica]">
+							SESSION
+						</h4>
+						<p className="font-medium font-['Manrope',Helvetica]">
+							{player.session}
+						</p>
+					</div>
+					<div>
+						<h4 className="text-xs text-gray-500 uppercase font-['Manrope',Helvetica]">
+							COACH
+						</h4>
+						<p className="font-medium font-['Manrope',Helvetica]">
+							{player.coach}
+						</p>
+					</div>
+				</footer>
 			</div>
 		</div>
 	);
