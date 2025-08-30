@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../../components/ui/button";
-import { MoreVertical, Plus } from "lucide-react";
+import { MoreVertical, Plus, Search } from "lucide-react";
+import { Input } from "../../components/ui/input";
 
 import {
 	Table,
@@ -78,6 +79,15 @@ const getRoleBadgeClasses = (role: string): string => {
 export const UserManagement = (): JSX.Element => {
 	const [users, setUsers] = useState<User[]>(mockUsers);
 	const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+	const [searchQuery, setSearchQuery] = useState<string>("");
+
+	// Filter users based on search query
+	const filteredUsers = users.filter(
+		(user) =>
+			user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			user.role.toLowerCase().includes(searchQuery.toLowerCase())
+	);
 
 	const handleActivate = (id: number) => {
 		setUsers(
@@ -139,10 +149,28 @@ export const UserManagement = (): JSX.Element => {
 		setOpenDropdown(openDropdown === userId ? null : userId);
 	};
 
+	// Close dropdown when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			const target = event.target as HTMLElement;
+			if (!target.closest(".relative")) {
+				setOpenDropdown(null);
+			}
+		};
+
+		if (openDropdown !== null) {
+			document.addEventListener("mousedown", handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [openDropdown]);
+
 	return (
 		<div>
-			{/* Header */}
-			<div className="flex flex-wrap justify-between gap-3 p-4">
+			{/* Title Section */}
+			<div className="p-4 pb-0">
 				<div className="flex min-w-72 flex-col gap-3">
 					<p className="text-[#111418] tracking-light text-[32px] font-bold leading-tight font-['Manrope',Helvetica]">
 						User Management
@@ -151,12 +179,36 @@ export const UserManagement = (): JSX.Element => {
 						Manage users, roles, and permissions
 					</p>
 				</div>
-				<div className="flex items-start gap-3">
+			</div>
+
+			{/* Controls Section */}
+			<div className="flex flex-wrap justify-between items-center gap-3 p-4">
+				<div className="flex items-center">
+					<p className="text-[#60758a] text-sm font-normal leading-normal font-['Manrope',Helvetica]">
+						{filteredUsers.length}{" "}
+						{filteredUsers.length === 1 ? "user" : "users"}
+						{searchQuery && ` of ${users.length} total`}
+					</p>
+				</div>
+
+				<div className="flex gap-3 items-center">
+					{/* Search */}
+					<div className="flex items-center gap-2">
+						<Search className="w-4 h-4 text-[#60758a]" />
+						<Input
+							type="text"
+							placeholder="Search users..."
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className="w-[200px] font-['Manrope',Helvetica] border-[#dbe0e5]"
+						/>
+					</div>
+
 					<Button
 						onClick={handleAddCoach}
-						className="flex items-center gap-2"
+						className="font-['Manrope',Helvetica] font-medium bg-[#111416] hover:bg-[#2a2d31] text-white"
 					>
-						<Plus className="h-4 w-4" />
+						<Plus className="h-4 w-4 mr-2" />
 						Add Coach
 					</Button>
 				</div>
@@ -171,11 +223,11 @@ export const UserManagement = (): JSX.Element => {
 							<TableHead>Status</TableHead>
 							<TableHead>Date Created</TableHead>
 							<TableHead>Last Updated</TableHead>
-							<TableHead></TableHead>
+							<TableHead>Actions</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{users.map((user) => (
+						{filteredUsers.map((user) => (
 							<TableRow key={user.id}>
 								<TableCell className="font-medium">
 									{user.name}
